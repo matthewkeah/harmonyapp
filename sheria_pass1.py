@@ -112,6 +112,12 @@ def voice_overlap(checker, rule, spec, chord, ctx, index):
 
 
 def parallel_perfects(checker, rule, spec, chord, ctx, index):
+    """Parallel fifths and octaves.
+
+    The error message now includes the previous and current pitches
+    of both voices so that a false positive can be told apart from a
+    genuine parallel in the fault report.
+    """
     prev = checker._prev(ctx, index)
     if prev is None:
         return []
@@ -138,7 +144,9 @@ def parallel_perfects(checker, rule, spec, chord, ctx, index):
             if prev_int == s and curr_int == s:
                 faults.append(ErrorDetail(
                     f"{rule.error_message} "
-                    f"({pair[0].title()}/{pair[1].title()})",
+                    f"({pair[0].title()}/{pair[1].title()}: "
+                    f"{p_top.pitch}-{p_bot.pitch} \u2192 "
+                    f"{c_top.pitch}-{c_bot.pitch})",
                     rule.weight, chord.tick,
                     voices=list(pair),
                     prev_tick=prev.tick))
@@ -257,14 +265,6 @@ def doubling_seventh(checker, rule, spec, chord, ctx, index):
 
 
 def triad_completeness(checker, rule, spec, chord, ctx, index):
-    """Triad completeness.
-
-    The third is the defining interval of a triad, but Bach omits
-    it occasionally on weak beats, in passing chords, and in second
-    inversions. Restrict this rule to strong-beat chords in root
-    position or first inversion, where the triadic quality must be
-    unambiguous.
-    """
     if chord.metric_position != "strong":
         return []
     if chord.inversion == "64":
