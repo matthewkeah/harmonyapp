@@ -15,6 +15,27 @@ Additionally, `note.tie` may be a list when a note is tied in both
 directions (a middle member of a tied chain); the extraction handles
 this case explicitly.
 
+Key detection
+-------------
+The reported key from the score's key signature is not always the
+key the piece is actually in. Bach chorales in particular are
+sometimes notated in a major key whose tonic is only the third
+degree of the true minor key (e.g. an F Minor piece under an Eb
+Major signature).
+
+The content analyzer in music21 is unreliable on modulating pieces,
+so we only accept an override when three conditions are met:
+
+  1. The content key is minor. Major→minor is the only pattern we
+     correct.
+  2. The content key's signature is at most one accidental away
+     from the reported key's signature. This restricts overrides to
+     closely-related keys.
+  3. The final bass pitch class matches the content key's tonic.
+
+The relative-minor override is handled separately because it is a
+signature-preserving case and needs none of these extra constraints.
+
 Requires: pip install music21
 """
 
@@ -25,7 +46,7 @@ import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from constants import KEYS
+from constants import KEYS, KEY_SIGNATURES
 
 
 QUARTER = 480
@@ -101,20 +122,10 @@ def _get_tie_info(elem):
     tie_out is True when this element begins a tie to the next note.
     tie_in  is True when this element ends a tie from the previous
     note. For middle members of a tied chain, both are True.
-
-    Two sources are checked:
-
-      1. The element-level `tie` attribute, which is a single Tie
-         object in MusicXML and a list of Ties for middle-of-chain
-         notes.
-      2. Any Tie spanners the element participates in. Kern files
-         parsed by music21 sometimes route ties through spanners
-         rather than the note attribute.
     """
     tie_out = False
     tie_in = False
 
-    # Source 1: element-level tie attribute.
     tie = getattr(elem, "tie", None)
     if tie is not None:
         ties = tie if isinstance(tie, (list, tuple)) else [tie]
@@ -125,7 +136,6 @@ def _get_tie_info(elem):
             if ttype in ("stop", "continue"):
                 tie_in = True
 
-    # Source 2: Tie spanners.
     try:
         spanners = elem.getSpannerSites()
     except Exception:
@@ -180,6 +190,9 @@ def _extract_midis(elem):
 
 
 def _final_bass_pc(parts):
+    """Pitch class of the lowest note sounding at the latest offset
+    in the score. Usually the bass note of the final chord.
+    """
     latest_off = None
     latest_midis = []
     for part in parts:
@@ -212,35 +225,86 @@ def _content_key(score):
         return None
 
 
+def _signature_flat_count(key_name):
+    """Return the signed number of accidentals in a key's signature.
+
+    Positive for sharp signatures, negative for flat signatures, zero
+    for C Major / A Minor. Returns 0 when the key or its signature
+    is unknown.
+    """
+    info = KEYS.get(key_name)
+    if info is None:
+        return 0
+    sig = info["signature"]
+    if sig not in KEY_SIGNATURES:
+        return 0
+    accs = KEY_SIGNATURES[sig]["accidentals"]
+    if not accs:
+        return 0
+    kind = accs[0][0]
+    count = len(accs)
+    return count if kind == "sharp" else -count
+
+
 def _detect_real_mode(score, parts, reported_key, forced_key=None):
+    """Determine the actual key of the piece.
+
+    Priority order:
+      1. Forced key (from --key).
+      2. Content analysis says minor AND its signature is at most one
+         accidental away from the reported key AND the final bass
+         matches the content key's tonic.
+      3. Final bass matches the relative minor of the reported key.
+      4. Reported key confirmed by final bass.
+      5. Fall back to the reported key.
+    """
     if forced_key is not None:
         return forced_key, "forced by --key"
+
     info = KEYS.get(reported_key)
-    if info is None or info["mode"] != "major":
-        return reported_key, "reported key already minor (or unknown)"
-    rel_minor = _relative_minor_name(reported_key)
-    if rel_minor is None:
-        return reported_key, "no relative minor for signature"
+    if info is None:
+        return reported_key, "unknown reported key"
+    if info["mode"] != "major":
+        return reported_key, "reported key already minor"
+
     major_tonic_pc = info["root"] % 12
-    rel_tonic_pc = KEYS[rel_minor]["root"] % 12
-    content_key = _content_key(score)
     final_bass_pc = _final_bass_pc(parts)
+    content_key = _content_key(score)
+
     reasons = []
-    if content_key == rel_minor:
+    if content_key:
         reasons.append(f"content says {content_key}")
-    if final_bass_pc is not None and final_bass_pc == rel_tonic_pc:
-        reasons.append(f"final bass pc {final_bass_pc} matches {rel_minor} tonic")
+    if final_bass_pc is not None:
+        reasons.append(f"final bass pc {final_bass_pc}")
+    reason_str = "; ".join(reasons)
+
+    # Priority 2: content says minor, close signature, bass confirms.
+    # The content analyzer is unreliable on modulating pieces, so we
+    # require a close key relationship as corroboration.
+    if content_key and content_key in KEYS and content_key != reported_key:
+        content_info = KEYS[content_key]
+        if content_info["mode"] == "minor":
+            content_flats = _signature_flat_count(content_key)
+            reported_flats = _signature_flat_count(reported_key)
+            if abs(content_flats - reported_flats) <= 1:
+                content_tonic_pc = content_info["root"] % 12
+                if final_bass_pc is not None and \
+                        final_bass_pc == content_tonic_pc:
+                    return content_key, ("content+bass override "
+                                         "(close key); " + reason_str)
+
+    # Priority 3: final bass matches the relative minor.
+    rel_minor = _relative_minor_name(reported_key)
+    if rel_minor is not None:
+        rel_tonic_pc = KEYS[rel_minor]["root"] % 12
+        if final_bass_pc is not None and final_bass_pc == rel_tonic_pc:
+            return rel_minor, "relative-minor override; " + reason_str
+
+    # Priority 4: reported key confirmed by final bass.
     if final_bass_pc is not None and final_bass_pc == major_tonic_pc:
-        reasons.append(f"final bass pc {final_bass_pc} matches {reported_key} tonic")
-    if final_bass_pc is not None and final_bass_pc == major_tonic_pc:
-        return reported_key, "; ".join(reasons)
-    if content_key == rel_minor:
-        return rel_minor, "; ".join(reasons)
-    if final_bass_pc is not None and final_bass_pc == rel_tonic_pc:
-        return rel_minor, "; ".join(reasons)
-    return reported_key, (
-        f"no override: content={content_key}, final_bass_pc={final_bass_pc}, "
-        f"major_tonic_pc={major_tonic_pc}, rel_minor_tonic_pc={rel_tonic_pc}")
+        return reported_key, "confirmed by final bass; " + reason_str
+
+    return reported_key, "reported; " + reason_str
 
 
 def _normalize_offsets(notes):
@@ -390,7 +454,10 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("src_dir")
     parser.add_argument("dst_dir")
-    parser.add_argument("--key", default=None)
+    parser.add_argument("--key", default=None,
+                        help="Force every file in the batch to this "
+                             "key. Applies to the whole run, not a "
+                             "single file.")
     parser.add_argument("--quiet", action="store_true")
     args = parser.parse_args()
 
