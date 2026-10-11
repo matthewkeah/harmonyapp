@@ -19,14 +19,6 @@ def _is_identifiable(chord):
 
 
 def leading_tone_resolution(checker, rule, spec, chord, ctx, index):
-    """Leading tone resolution in the outer voices.
-
-    The rule only fires when the previous dominant actually resolves
-    to the tonic triad. When V moves to vi, IV, or a diminished
-    chord, the LT has more freedom and various idiomatic voice
-    leadings are available; those cases are rated by the quality
-    rule set instead.
-    """
     prev = checker._prev(ctx, index)
     if prev is None:
         return []
@@ -34,8 +26,6 @@ def leading_tone_resolution(checker, rule, spec, chord, ctx, index):
     if prev.function != "dominant":
         return []
 
-    # Only check when the target is a tonic triad. Deceptive and
-    # non-cadential resolutions are governed by quality rules.
     if chord.function != "tonic":
         return []
 
@@ -264,31 +254,24 @@ def closing_chord_must_be_tonic(checker, rule, spec, chord, ctx, index):
 
 
 def cadence_at_closing(checker, rule, spec, chord, ctx, index):
+    """Final cadence type at the end of a piece.
+
+    The truly fatal condition is: the piece does not end on the
+    tonic. Any arrival on a tonic triad — perfect authentic,
+    imperfect authentic, plagal, or modal — is acceptable. The
+    specific cadence type is a quality observation, not a fault,
+    and is reported by the quality rule set.
+    """
     if index != len(ctx.chords) - 1:
         return []
     if not _is_identifiable(chord):
         return []
-    prev = checker._prev(ctx, index)
-    if prev is None:
-        return []
-    if not _is_identifiable(prev):
-        return []
-    if chord.cadence_type in ("perfect_authentic", "imperfect_authentic"):
+    if chord.function == "tonic":
         return []
     return [ErrorDetail(rule.error_message, rule.weight, chord.tick)]
 
 
 def no_retrogression(checker, rule, spec, chord, ctx, index):
-    """Dominant → predominant is a retrogression.
-
-    V→ii is not caught here — that ascending-5th motion is already
-    the responsibility of P4-ASC-FIFTH-RETRO, and double-counting
-    inflates the penalty for a single musical event.
-
-    V→IV is the motion this rule catches. It is a descending 2nd
-    root motion (from 5 to 4), which is not an ascending 5th and
-    therefore not covered by the pass-4 rule.
-    """
     prev = checker._prev(ctx, index)
     if prev is None:
         return []
@@ -299,12 +282,10 @@ def no_retrogression(checker, rule, spec, chord, ctx, index):
     if prev.inversion not in ("root", "7"):
         return []
 
-    # Skip V→ii (ascending 5th); P4-ASC-FIFTH-RETRO handles it.
     curr_interval = (chord.root_pc - ctx.key.root_pitch_class) % 12
     if curr_interval == 2:
         return []
 
-    # Skip ii6 (acts as subdominant in practice).
     if chord.numeral and chord.numeral.lower().startswith("ii6"):
         return []
 
@@ -313,14 +294,6 @@ def no_retrogression(checker, rule, spec, chord, ctx, index):
 
 
 def intermediate_must_not_resolve_to_tonic(checker, rule, spec, chord, ctx, index):
-    """An intermediate harmony typically leads to V, not to I.
-
-    Restrict to the textbook case: a root-position supertonic triad
-    resolving directly to a root-position tonic on a strong beat.
-    Inverted supertonics (ii6, ii65) behave as subdominants and are
-    exempt. Weak-beat resolutions are passing motions and are exempt.
-    First-inversion tonics are passing chord targets, not arrivals.
-    """
     prev = checker._prev(ctx, index)
     if prev is None:
         return []
@@ -399,13 +372,6 @@ def v42_must_resolve_to_i6(checker, rule, spec, chord, ctx, index):
 
 
 def v43_resolution_appropriate(checker, rule, spec, chord, ctx, index):
-    """V4/3 resolves to I or I6.
-
-    The seventh may resolve down by step, or the whole chord may be
-    extended by a passing motion. If the seventh is being held over
-    (transferred to another voice), the chord is a prolongation and
-    the rule does not fire.
-    """
     prev = checker._prev(ctx, index)
     if prev is None:
         return []
@@ -415,8 +381,6 @@ def v43_resolution_appropriate(checker, rule, spec, chord, ctx, index):
     if prev.root_pc != v_pc:
         return []
 
-    # If the current chord still contains the seventh pc, the chord
-    # is a prolongation; the resolution has been delayed.
     seventh_pc = (prev.root_pc + 10) % 12
     if any(n.pitch % 12 == seventh_pc for n in chord.slice.get_notes()):
         return []

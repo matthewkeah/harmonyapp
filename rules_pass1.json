@@ -6,7 +6,8 @@
     "handlers_registered_in": "sheria_pass1.py",
     "note_on_doubling": "Root doubling in a root-position triad is a tendency, not a rule. Only the leading tone and the chordal seventh must never be doubled.",
     "note_on_spacing": "Aldwell & Schachter Unit 5 §5 constrains adjacent voices only. There is no rule about S-B span.",
-    "note_on_ranges": "Textbook ranges from Unit 5 §2 are extended by two semitones on each side to tolerate boundary excursions that appear in real choral writing. Notes clearly outside these relaxed bounds still trigger the rule.",
+    "note_on_ranges": "Textbook ranges from Unit 5 §2 are extended by two semitones on each side to tolerate boundary excursions.",
+    "note_on_six_four_doubling": "The doubling rules for second-inversion triads are strictest for the cadential 6/4. Passing and neighbouring 6/4s are more flexible and only fire when the doubling is clearly wrong. The INV2-DOUBLE-BASS rule is therefore restricted to six_four_types: [cadential].",
     "how_to_add_a_rule": [
       "1. Copy a rule block between { and }.",
       "2. Give it a new unique rule_id.",
@@ -213,13 +214,14 @@
       "tier": "CONTEXTUAL",
       "category": "Chord Tone Doubling - Second Inversion",
       "weight": 4,
-      "error_message": "In a second-inversion triad, the bass should be doubled",
+      "error_message": "In a cadential 6/4, the bass should be doubled",
       "check": {
         "type": "doubling_chord_tone",
         "target": "fifth",
         "qualities": ["Major", "Minor"],
         "inversion": "64",
-        "min_count": 2
+        "min_count": 2,
+        "six_four_types": ["cadential"]
       }
     },
 

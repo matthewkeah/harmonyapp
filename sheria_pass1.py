@@ -17,11 +17,6 @@ SEMITONE_MAP = {
     "P5": 7, "m6": 8, "M6": 9, "m7": 10, "M7": 11, "P8": 12,
 }
 
-# Minimum pitch overshoot (semitones past the previous position of the
-# adjacent voice) before an overlap is considered a fault. Small
-# excursions of one or two semitones are common in real choral
-# writing, especially between adjacent inner voices, and are not the
-# fault the textbook prohibition targets.
 OVERLAP_MARGIN = 3
 
 _A = RomanNumeralAnalyzer()
@@ -54,31 +49,40 @@ def voice_pair_interval(checker, rule, spec, chord, ctx, index):
 
 
 def voice_crossing(checker, rule, spec, chord, ctx, index):
+    """Voice crossing.
+
+    A voice pair that remains crossed across several consecutive
+    chords is a single event, not one fault per chord. We report the
+    crossing only at the moment it begins, by skipping any pair that
+    was also crossed in the previous chord.
+    """
     faults = []
+    prev = checker._prev(ctx, index)
     for i in range(len(VOICE_ORDER) - 1):
-        upper = getattr(chord.slice, VOICE_ORDER[i], None)
-        lower = getattr(chord.slice, VOICE_ORDER[i + 1], None)
+        upper_name = VOICE_ORDER[i]
+        lower_name = VOICE_ORDER[i + 1]
+        upper = getattr(chord.slice, upper_name, None)
+        lower = getattr(chord.slice, lower_name, None)
         if upper is None or lower is None:
             continue
-        if upper.pitch < lower.pitch:
-            faults.append(ErrorDetail(
-                f"{rule.error_message} "
-                f"({VOICE_ORDER[i].title()} below {VOICE_ORDER[i + 1].title()})",
-                rule.weight, chord.tick,
-                voices=[VOICE_ORDER[i], VOICE_ORDER[i + 1]]))
+        if upper.pitch >= lower.pitch:
+            continue
+        # Suppress if this same pair was already crossing.
+        if prev is not None:
+            p_upper = getattr(prev.slice, upper_name, None)
+            p_lower = getattr(prev.slice, lower_name, None)
+            if p_upper is not None and p_lower is not None \
+                    and p_upper.pitch < p_lower.pitch:
+                continue
+        faults.append(ErrorDetail(
+            f"{rule.error_message} "
+            f"({upper_name.title()} below {lower_name.title()})",
+            rule.weight, chord.tick,
+            voices=[upper_name, lower_name]))
     return faults
 
 
 def voice_overlap(checker, rule, spec, chord, ctx, index):
-    """Voice overlap.
-
-    An overlap happens when a voice moves past the previous position
-    of an adjacent voice, in such a way that if the note values were
-    doubled it would create a crossing. Very small excursions of one
-    or two semitones are common in real four-voice writing and are
-    not the fault this rule targets; we require at least
-    OVERLAP_MARGIN semitones of overshoot before flagging.
-    """
     prev = checker._prev(ctx, index)
     if prev is None:
         return []
@@ -116,12 +120,6 @@ def voice_overlap(checker, rule, spec, chord, ctx, index):
 
 
 def parallel_perfects(checker, rule, spec, chord, ctx, index):
-    """Parallel fifths and octaves.
-
-    Both voices must actually move for a genuine parallel. Oblique
-    motion (one voice stationary) is merely a repetition of the same
-    interval, which is not forbidden.
-    """
     prev = checker._prev(ctx, index)
     if prev is None:
         return []
@@ -157,13 +155,6 @@ def parallel_perfects(checker, rule, spec, chord, ctx, index):
 
 
 def direct_perfects(checker, rule, spec, chord, ctx, index):
-    """Hidden / direct fifths and octaves in the outer voices.
-
-    Hidden intervals are forbidden when both voices move in similar
-    motion and the upper voice leaps. Stepwise motion in the upper
-    voice neutralises the effect; we treat a step up to a major third
-    as effectively stepwise. The bass voice must also leap.
-    """
     prev = checker._prev(ctx, index)
     if prev is None:
         return []
@@ -201,9 +192,6 @@ def direct_perfects(checker, rule, spec, chord, ctx, index):
 
 
 def doubling_leading_tone(checker, rule, spec, chord, ctx, index):
-    """Leading tone is only a tendency tone in dominant-function
-    chords. Gate on function to avoid false positives on iii.
-    """
     if chord.function not in ("dominant", "secondary"):
         return []
     lt_pc = (ctx.key.root_pitch_class + 11) % 12
@@ -217,6 +205,18 @@ def doubling_leading_tone(checker, rule, spec, chord, ctx, index):
 
 
 def doubling_chord_tone(checker, rule, spec, chord, ctx, index):
+    """Doubling of a chord tone.
+
+    Supports an optional `six_four_types` filter so that a rule can
+    be restricted to specific classes of 6/4 chords. The second-
+    inversion doubling rule, for example, is strictest for the
+    cadential 6/4 and more permissive for passing and neighbouring
+    six-fours.
+    """
+    if "six_four_types" in spec:
+        if chord.six_four_type not in spec["six_four_types"]:
+            return []
+
     info = _A.analyze(chord.slice, ctx.key)
     if info.root_pc == -1 or "7" in info.quality:
         return []
