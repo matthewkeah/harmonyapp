@@ -218,14 +218,7 @@ def draw_time_signature_change(canvas, barline_x, y_offset, time_sig_name):
 #    Bass bottom line:   330
 #
 #  Ledger lines sit at every 10-pixel mark extending outward from the
-#  nearest staff edge. A note sitting ON a ledger's y-coordinate needs
-#  that ledger drawn. A note sitting in the space above a ledger needs
-#  only the ledger below it.
-#
-#  The previous implementation had a branch gap: y=270 (E4 in the
-#  bass staff) fell into the "middle of the gap" case and got no
-#  ledgers at all, despite needing two (280 and 270). The rewrite
-#  uses explicit outward walks so every boundary is covered.
+#  nearest staff edge.
 # ---------------------------------------------------------------------
 
 def draw_ledger_lines(canvas, x, y, tag=None, color="#000000"):
@@ -241,28 +234,25 @@ def draw_ledger_lines(canvas, x, y, tag=None, color="#000000"):
     MAX = 12
 
     if y_local < 150:
-        # Above treble staff. Ledgers at 140, 130, 120, ...
+        # Above treble staff.
         p = 140
         while p >= y_local and len(positions) < MAX:
             positions.append(p)
             p -= 10
     elif 190 < y_local < 250:
-        # Below treble staff, before the middle gap. Ledgers at
-        # 200, 210, 220, ...
+        # Below treble staff, before the middle gap.
         p = 200
         while p <= y_local and len(positions) < MAX:
             positions.append(p)
             p += 10
     elif 250 <= y_local < 290:
-        # Above bass staff. Ledgers at 280, 270, 260, ...
-        # This branch covers y=270 (E4 in bass), which the previous
-        # version silently dropped.
+        # Above bass staff. Includes y=270 (E4 in bass staff).
         p = 280
         while p >= y_local and len(positions) < MAX:
             positions.append(p)
             p -= 10
     elif y_local > 330:
-        # Below bass staff. Ledgers at 340, 350, 360, ...
+        # Below bass staff.
         p = 340
         while p <= y_local and len(positions) < MAX:
             positions.append(p)
@@ -307,8 +297,103 @@ def _draw_dots(canvas, x, y, dots, color):
                            fill=color, outline="")
 
 
+# ---------------------------------------------------------------------
+#  Accidentals
+#
+#  Two routines:
+#
+#    draw_chord_accidentals(canvas, entries)
+#       Lays out every accidental at one onset as a properly-stacked
+#       vertical column left of the leftmost notehead. Standard
+#       engraving practice: accidentals for a chord line up in a
+#       column, not attached to each notehead.
+#
+#    _draw_single_accidental(canvas, x, y, kind, color)
+#       Renders one accidental glyph with y-offsets tuned so the
+#       visible part of the glyph (not its bounding box centre)
+#       aligns with the notehead's centre line.
+# ---------------------------------------------------------------------
+
+def draw_chord_accidentals(canvas, entries):
+    """Draw the accidentals of a chord as a single stacked column.
+
+    entries: list of (notehead_x, notehead_y, kind, color) tuples,
+             one per note in the chord that carries an accidental.
+
+    The column is placed to the left of the leftmost notehead. If two
+    accidentals would visually overlap vertically, one is pushed into
+    a second column further left.
+    """
+    if not entries:
+        return
+
+    # Sort top-to-bottom so the column reads with the chord.
+    entries = sorted(entries, key=lambda e: e[1])
+
+    leftmost_x = min(e[0] for e in entries)
+    base_col_x = leftmost_x - 22
+    column_step = 14
+    y_collision_threshold = 13
+
+    columns = []
+    for x, y, kind, color in entries:
+        placed = False
+        for col in columns:
+            if all(abs(y - ey) >= y_collision_threshold for ey, _ in col):
+                col.append((y, (x, y, kind, color)))
+                placed = True
+                break
+        if not placed:
+            columns.append([(y, (x, y, kind, color))])
+
+    for ci, col in enumerate(columns):
+        col_x = base_col_x - ci * column_step
+        for _y, (_x, orig_y, kind, color) in col:
+            _draw_single_accidental(canvas, col_x, orig_y, kind, color)
+
+
+def _draw_single_accidental(canvas, x, y, kind, color):
+    """Render one accidental glyph.
+
+    `x` is the accidental's horizontal centre. `y` is the staff
+    y-coordinate of the notehead it belongs to. The vertical offsets
+    below align the *visible* part of each glyph with the notehead,
+    not its bounding box, because the flat's ball is bottom-heavy
+    and its stem rises above the bounding box centre.
+    """
+    if kind == "sharp":
+        canvas.create_text(x, y, text="\u266F",
+                           font=("Segoe UI Symbol", 22),
+                           fill=color, anchor="center")
+    elif kind == "flat":
+        canvas.create_text(x, y - 6, text="\u266D",
+                           font=("Segoe UI Symbol", 22),
+                           fill=color, anchor="center")
+    elif kind == "natural":
+        canvas.create_text(x, y - 1, text="\u266E",
+                           font=("Segoe UI Symbol", 22),
+                           fill=color, anchor="center")
+    elif kind == "double_flat":
+        canvas.create_text(x, y - 6, text="\U0001D12B",
+                           font=("Segoe UI Symbol", 22),
+                           fill=color, anchor="center")
+    elif kind == "double_sharp":
+        canvas.create_text(x, y, text="\U0001D12A",
+                           font=("Segoe UI Symbol", 22),
+                           fill=color, anchor="center")
+
+
 def draw_note(canvas, x, y, ticks, stem, is_selected, accidental, assets,
-              is_beamed=False, overflow=False, note_color=None):
+              is_beamed=False, overflow=False, note_color=None,
+              skip_accidental=False):
+    """Draw a single notehead.
+
+    When `skip_accidental` is True, the accidental is not drawn here
+    and the caller is expected to draw it later via
+    `draw_chord_accidentals`. This is the mode used by the app: it
+    collects every accidental at one onset and lays them out as a
+    single column.
+    """
     if note_color is None:
         note_color = "#000000"
 
@@ -319,16 +404,10 @@ def draw_note(canvas, x, y, ticks, stem, is_selected, accidental, assets,
         canvas.create_oval(x - 16, y - 15, x + 16, y + 15,
                            outline="#D40000", width=2, tags="overflow")
 
-    acc_color = "#00A2E8" if is_selected else note_color
-    if accidental == "sharp":
-        canvas.create_text(x - 24, y, text="\u266F",
-                           font=("Segoe UI Symbol", 26), fill=acc_color)
-    elif accidental == "flat":
-        canvas.create_text(x - 24, y - 4, text="\u266D",
-                           font=("Segoe UI Symbol", 30), fill=acc_color)
-    elif accidental == "natural":
-        canvas.create_text(x - 24, y, text="\u266E",
-                           font=("Segoe UI Symbol", 26), fill=acc_color)
+    if not skip_accidental:
+        acc_color = "#00A2E8" if is_selected else note_color
+        if accidental:
+            _draw_single_accidental(canvas, x - 20, y, accidental, acc_color)
 
     base, dots = _classify_duration(ticks)
     suffix = 'up' if stem == "up" else 'down'
@@ -336,25 +415,25 @@ def draw_note(canvas, x, y, ticks, stem, is_selected, accidental, assets,
 
     if base == 'whole':
         canvas.create_image(x, y, image=assets[f'w_note{sel}'])
-        _draw_dots(canvas, x + 2, y, dots, acc_color)
+        _draw_dots(canvas, x + 2, y, dots, note_color)
     elif base == 'half':
         canvas.create_image(x, y - 17 if stem == "up" else y + 17,
                             image=assets[f'h_{suffix}{sel}'])
-        _draw_dots(canvas, x + 4, y, dots, acc_color)
+        _draw_dots(canvas, x + 4, y, dots, note_color)
     elif base == 'quarter':
         canvas.create_image(x, y - 17 if stem == "up" else y + 17,
                             image=assets[f'q_{suffix}{sel}'])
-        _draw_dots(canvas, x + 4, y, dots, acc_color)
+        _draw_dots(canvas, x + 4, y, dots, note_color)
     elif base == 'quaver':
         glyph = 'bn' if is_beamed else 'e'
         canvas.create_image(x, y - 17 if stem == "up" else y + 17,
                             image=assets[f'{glyph}_{suffix}{sel}'])
-        _draw_dots(canvas, x + 4, y, dots, acc_color)
+        _draw_dots(canvas, x + 4, y, dots, note_color)
     else:
         glyph = 'bn' if is_beamed else 's'
         canvas.create_image(x, y - 17 if stem == "up" else y + 17,
                             image=assets[f'{glyph}_{suffix}{sel}'])
-        _draw_dots(canvas, x + 4, y, dots, acc_color)
+        _draw_dots(canvas, x + 4, y, dots, note_color)
 
 
 def draw_tie(canvas, x1, y1, x2, y2, color, stem_dir):
@@ -379,10 +458,8 @@ def draw_beam_group(canvas, points, stem_dir, color="#000000"):
     points: list of (x, y, ticks) in score order.
 
     The primary beam connects the outermost stems. Secondary beams
-    (for semiquavers and shorter) are drawn only over *runs of
-    consecutive* short notes, not across the entire group. This
-    matters for mixed rhythms like quaver–semiquaver–semiquaver–quaver,
-    where the secondary beam should span only the two middle notes.
+    for semiquavers are drawn only over consecutive runs of short
+    notes, not across the entire group.
     """
     if len(points) < 2:
         return
@@ -401,7 +478,6 @@ def draw_beam_group(canvas, points, stem_dir, color="#000000"):
         beam_base = max(ys) + STEM_LENGTH
         stem_x_offset = -6
 
-    # Primary beam and stems.
     for x, y, _ in points:
         canvas.create_line(x + stem_x_offset, y,
                            x + stem_x_offset, beam_base,
@@ -410,7 +486,6 @@ def draw_beam_group(canvas, points, stem_dir, color="#000000"):
                        xs[-1] + stem_x_offset, beam_base,
                        fill=color, width=beam_thickness, tags="beam")
 
-    # Find consecutive runs of semiquavers (or shorter).
     runs = []
     current = []
     for x, y, t in points:

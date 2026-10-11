@@ -30,6 +30,7 @@ from harmony import (
 from rendering import (
     generate_note_assets, draw_staff, draw_ledger_lines, draw_note,
     draw_beam_group, draw_tie, draw_time_signature_change,
+    draw_chord_accidentals,
 )
 from bar_layout import BarLayout
 from figuration import harmonic_onsets
@@ -1585,7 +1586,8 @@ class SmartHarmonyAssistant(ctk.CTk):
                           is_sel, n.get("accidental"), assets,
                           is_beamed=(id(n) in beamed_ids),
                           overflow=is_overflow,
-                          note_color=note_color)
+                          note_color=note_color,
+                          skip_accidental=True)
 
                 nn = NoteNode(n['pitch'], n['ticks'])
                 v = n.get('voice', 0)
@@ -1600,6 +1602,23 @@ class SmartHarmonyAssistant(ctk.CTk):
                     vs.tenor = nn
                 elif v == 3 and vs.bass is None:
                     vs.bass = nn
+
+            # Draw all accidentals for this onset as a single stacked
+            # column, left of the leftmost notehead. Standard music
+            # engraving does not attach accidentals to individual
+            # noteheads; they form a chord-wide column.
+            acc_entries = []
+            for n in notes:
+                acc = n.get("accidental")
+                if not acc:
+                    continue
+                sx, sy = n['_screen_pos']
+                is_sel = (self.selected_note == n)
+                _, note_color = self._assets_for_note(n)
+                color = "#00A2E8" if is_sel else note_color
+                acc_entries.append((sx, sy, acc, color))
+            if acc_entries:
+                draw_chord_accidentals(self.canvas, acc_entries)                    
 
             # Fill any still-empty voice slots from held-over notes.
             for n in self.notes_db:

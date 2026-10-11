@@ -1,22 +1,4 @@
-"""sheria_base.py — Foundation shared by all rule passes.
-
-Analyzer revision notes
------------------------
-
-1.  Diatonic preference.
-2.  Picardy third with inversion figure preserved.
-3.  Subset recovery for slices with 4 or 5 pitch classes.
-4.  Major7 downgrade.
-5.  Sus triads.
-6.  Incomplete and suspended sevenths.
-7.  Sparse slices and two-pitch-class recovery (I*, I6*, I64*).
-8.  Incomplete augmented sixths.
-9.  Shell seventh chords (third omitted).
-10. Dominant ninth and augmented major seventh.
-
-Set HARMONY_DEBUG=1 before launching to print every unidentified
-slice's pitch classes to stdout.
-"""
+"""sheria_base.py — Foundation shared by all rule passes."""
 
 import json
 import os
@@ -369,25 +351,30 @@ class RomanNumeralAnalyzer:
                     return (pc, "Major7")
                 if (pc + 3) % 12 in pcs and (pc + 9) % 12 in pcs:
                     return (pc, "FullDim7")
-                # Shell seventh chords: root + perfect fifth + seventh,
-                # third omitted. Common in four-voice textures where the
-                # third is left out for voice-leading or doubling reasons.
+                # Shell seventh chords: root + fifth + seventh
                 if (pc + 7) % 12 in pcs and (pc + 10) % 12 in pcs:
                     return (pc, "ShellDom7")
                 if (pc + 7) % 12 in pcs and (pc + 11) % 12 in pcs:
                     return (pc, "ShellMaj7")
+                # Dominant 7b5 shell: root + tritone + minor seventh.
+                # Third and perfect fifth both omitted; the tritone is
+                # the altered fifth rather than the third.
+                if (pc + 6) % 12 in pcs and (pc + 10) % 12 in pcs:
+                    return (pc, "Dom7b5Shell")
         if len(pcs) == 4:
             for pc in sorted(pcs):
-                maj3 = (pc + 4) % 12 in pcs
+                maj2 = (pc + 2) % 12 in pcs
+                min2 = (pc + 1) % 12 in pcs
                 min3 = (pc + 3) % 12 in pcs
-                perf5 = (pc + 7) % 12 in pcs
+                maj3 = (pc + 4) % 12 in pcs
+                perf4 = (pc + 5) % 12 in pcs
                 dim5 = (pc + 6) % 12 in pcs
+                perf5 = (pc + 7) % 12 in pcs
                 aug5 = (pc + 8) % 12 in pcs
+                maj6 = (pc + 9) % 12 in pcs
                 min7 = (pc + 10) % 12 in pcs
                 maj7 = (pc + 11) % 12 in pcs
-                dim7 = (pc + 9) % 12 in pcs
-                maj9 = (pc + 2) % 12 in pcs
-                # Complete seventh chords
+                # Standard seventh chords
                 if maj3 and perf5 and maj7:
                     return (pc, "Major7")
                 if maj3 and perf5 and min7:
@@ -396,26 +383,47 @@ class RomanNumeralAnalyzer:
                     return (pc, "Minor7")
                 if min3 and dim5 and min7:
                     return (pc, "HalfDim7")
-                if min3 and dim5 and dim7:
+                if min3 and dim5 and maj6:
                     return (pc, "FullDim7")
-                # Dominant ninth (fifth omitted): root + M3 + m7 + M9
-                if maj3 and min7 and maj9:
+                # Dominant ninth (fifth omitted)
+                if maj3 and min7 and maj2:
                     return (pc, "Dominant9")
-                # Augmented major seventh: root + M3 + A5 + M7
+                # Augmented major seventh
                 if maj3 and aug5 and maj7:
                     return (pc, "AugMajor7")
+                # Add9 chords
+                if maj3 and perf5 and maj2:
+                    return (pc, "MajorAdd9")
+                if min3 and perf5 and maj2:
+                    return (pc, "MinorAdd9")
+                # Add4: triad + perfect fourth
+                if maj3 and perf5 and perf4:
+                    return (pc, "Add4")
+                # Major-ninth shell: root + M2 + P5 + M7
+                if maj2 and perf5 and maj7:
+                    return (pc, "ShellMaj9")
+                # Dominant-thirteenth shell: root + M3 + P5 + m7 + M6
+                if maj3 and perf5 and min7 and maj6:
+                    return (pc, "Dominant13")
+                # Dominant 7 with an added 11th (third still present):
+                # root + M3 + P4 + m7.
+                if maj3 and perf4 and min7:
+                    return (pc, "Dominant7Add11")
+                # Dominant 7b9 without the third: root + m2 + P5 + m7.
+                # The flat nine supplies the chromatic tension in
+                # place of the missing third.
+                if min2 and perf5 and min7:
+                    return (pc, "Dom7b9No3")
                 # Suspended seventh chords
-                sus4 = (pc + 5) % 12 in pcs
-                sus2 = (pc + 2) % 12 in pcs
-                if sus4 and perf5 and min7:
+                if perf4 and perf5 and min7:
                     return (pc, "7sus4")
-                if sus2 and perf5 and min7:
+                if maj2 and perf5 and min7:
                     return (pc, "7sus2")
         return (-1, "")
 
     @staticmethod
     def _identify_subset(pitches):
-        bass = min(pitches)
+        bass_pc = min(pitches) % 12
         best = (-1, "")
         best_score = -1
         uniq = sorted(set(pitches))
@@ -428,22 +436,27 @@ class RomanNumeralAnalyzer:
                 for j in range(i + 1, n):
                     for k in range(j + 1, n):
                         if size == 3:
-                            sub = {uniq[i], uniq[j], uniq[k]}
-                            root_pc, quality = RomanNumeralAnalyzer._identify(sub)
+                            sub_pcs = {uniq[i] % 12,
+                                       uniq[j] % 12,
+                                       uniq[k] % 12}
+                            root_pc, quality = RomanNumeralAnalyzer._identify(sub_pcs)
                             if root_pc == -1:
                                 continue
-                            bass_bonus = 2 if (bass % 12) in sub else 0
+                            bass_bonus = 2 if bass_pc in sub_pcs else 0
                             score = bass_bonus * 10 + size
                             if score > best_score:
                                 best_score = score
                                 best = (root_pc, quality)
                         else:
                             for l in range(k + 1, n):
-                                sub = {uniq[i], uniq[j], uniq[k], uniq[l]}
-                                root_pc, quality = RomanNumeralAnalyzer._identify(sub)
+                                sub_pcs = {uniq[i] % 12,
+                                           uniq[j] % 12,
+                                           uniq[k] % 12,
+                                           uniq[l] % 12}
+                                root_pc, quality = RomanNumeralAnalyzer._identify(sub_pcs)
                                 if root_pc == -1:
                                     continue
-                                bass_bonus = 2 if (bass % 12) in sub else 0
+                                bass_bonus = 2 if bass_pc in sub_pcs else 0
                                 score = bass_bonus * 10 + size
                                 if score > best_score:
                                     best_score = score
@@ -481,7 +494,9 @@ class RomanNumeralAnalyzer:
     # ---- Secondary-function detection --------------------------
 
     def _try_secondary_dominant(self, root_pc, quality, bass_pc, key_pc, mode):
-        if quality not in ("Major", "Dominant7", "Dominant9", "ShellDom7"):
+        if quality not in ("Major", "Dominant7", "Dominant9",
+                           "ShellDom7", "Dominant13", "MajorAdd9",
+                           "Dominant7Add11", "Dom7b9No3", "Dom7b5Shell"):
             return None
         for degree in self._applied_targets(mode):
             dom_root = (key_pc + degree + 7) % 12
@@ -490,6 +505,21 @@ class RomanNumeralAnalyzer:
                 if quality == "Major":
                     label = f"V/{target}"
                     inv = self._triad_inversion(root_pc, bass_pc)
+                elif quality == "MajorAdd9":
+                    label = f"V{_sup('add9')}/{target}"
+                    inv = self._triad_inversion(root_pc, bass_pc)
+                elif quality == "Dominant13":
+                    label = f"V{_sup('13')}/{target}"
+                    inv = self._seventh_inversion(root_pc, bass_pc)
+                elif quality == "Dominant7Add11":
+                    label = f"V{_sup('7')}{_sup('add11')}/{target}"
+                    inv = self._seventh_inversion(root_pc, bass_pc)
+                elif quality == "Dom7b9No3":
+                    label = f"V{_sup('7')}{_sup('b9')}/{target}"
+                    inv = self._seventh_inversion(root_pc, bass_pc)
+                elif quality == "Dom7b5Shell":
+                    label = f"V{_sup('7')}{_sup('b5')}/{target}"
+                    inv = self._seventh_inversion(root_pc, bass_pc)
                 else:
                     label = f"V{_sup('7')}/{target}"
                     inv = self._seventh_inversion(root_pc, bass_pc)
@@ -573,9 +603,9 @@ class RomanNumeralAnalyzer:
             return "root"
         if bass_pc in ((root_pc + 3) % 12, (root_pc + 4) % 12):
             return "6"
-        if bass_pc in ((root_pc + 6) % 12, (root_pc + 7) % 12):
-            return "64"
-        if bass_pc == (root_pc + 8) % 12:
+        if bass_pc in ((root_pc + 6) % 12,
+                       (root_pc + 7) % 12,
+                       (root_pc + 8) % 12):
             return "64"
         return ""
 
@@ -598,10 +628,13 @@ class RomanNumeralAnalyzer:
                              bass_pc=bass_pc, key_pc=key_pc)
 
         if quality in ("Major", "Major7", "Dominant7", "Dominant9",
-                       "ShellDom7", "ShellMaj7", "AugMajor7",
+                       "ShellDom7", "ShellMaj7", "ShellMaj9",
+                       "AugMajor7", "Dominant13",
+                       "MajorAdd9", "Add4",
+                       "Dominant7Add11", "Dom7b9No3", "Dom7b5Shell",
                        "Sus4", "Sus2", "7sus4", "7sus2"):
             roman = base.upper()
-        elif quality in ("Minor", "Minor7"):
+        elif quality in ("Minor", "Minor7", "MinorAdd9"):
             roman = base.lower()
         elif quality == "Diminished":
             roman = base.lower() + "\u00B0"
@@ -638,47 +671,148 @@ class RomanNumeralAnalyzer:
                              root_pc=root_pc, quality=quality,
                              inversion=inv, bass_pc=bass_pc, key_pc=key_pc)
 
-        # Shell sevenths: written as "V7*" (incomplete seventh, third
-        # omitted). The asterisk is the same convention used for
-        # incomplete triads.
-        if quality == "ShellDom7":
-            inv = self._seventh_inversion(root_pc, bass_pc)
-            if inv == "7":
-                fig = _sup("7")
-            elif inv == "65":
-                fig = _sup("6") + _sub("5")
-            elif inv == "43":
-                fig = _sup("4") + _sub("3")
+        if quality in ("MajorAdd9", "MinorAdd9"):
+            inv = self._triad_inversion(root_pc, bass_pc)
+            if inv == "6":
+                fig = _sup("6")
+            elif inv == "64":
+                fig = _sup("6") + _sup("4")
             else:
-                fig = _sup("4") + _sub("2")
-            return ChordInfo(label=f"{roman}{fig}*", category="diatonic",
-                             root_pc=root_pc, quality="Dominant7",
-                             inversion=inv, bass_pc=bass_pc, key_pc=key_pc)
-        if quality == "ShellMaj7":
-            inv = self._seventh_inversion(root_pc, bass_pc)
-            if inv == "7":
-                fig = _sup("7")
-            elif inv == "65":
-                fig = _sup("6") + _sub("5")
-            elif inv == "43":
-                fig = _sup("4") + _sub("3")
-            else:
-                fig = _sup("4") + _sub("2")
-            return ChordInfo(label=f"{roman}\u1D39{fig}*", category="diatonic",
-                             root_pc=root_pc, quality="Major7",
-                             inversion=inv, bass_pc=bass_pc, key_pc=key_pc)
-
-        # Dominant ninth: base numeral + "9". Inversion figure is
-        # omitted because the ninth is rarely the bass and treating
-        # ninth-rooted inversions as standard would mislead.
-        if quality == "Dominant9":
-            return ChordInfo(label=f"{roman}{_sup('9')}",
+                fig = ""
+            return ChordInfo(label=f"{roman}{fig}add9",
                              category="diatonic",
-                             root_pc=root_pc, quality="Dominant9",
-                             inversion="root", bass_pc=bass_pc,
+                             root_pc=root_pc, quality=quality,
+                             inversion=inv, bass_pc=bass_pc,
                              key_pc=key_pc)
 
-        # Augmented major seventh: base + "+" + major7 marker.
+        if quality == "Add4":
+            inv = self._triad_inversion(root_pc, bass_pc)
+            if inv == "6":
+                fig = _sup("6")
+            elif inv == "64":
+                fig = _sup("6") + _sup("4")
+            else:
+                fig = ""
+            return ChordInfo(label=f"{roman}{fig}add4",
+                             category="diatonic",
+                             root_pc=root_pc, quality=quality,
+                             inversion=inv, bass_pc=bass_pc,
+                             key_pc=key_pc)
+
+        if quality in ("ShellDom7", "ShellMaj7"):
+            inv = self._seventh_inversion(root_pc, bass_pc)
+            if inv == "7":
+                fig = _sup("7")
+            elif inv == "65":
+                fig = _sup("6") + _sub("5")
+            elif inv == "43":
+                fig = _sup("4") + _sub("3")
+            else:
+                fig = _sup("4") + _sub("2")
+            real_quality = "Dominant7" if quality == "ShellDom7" else "Major7"
+            major_mark = "\u1D39" if quality == "ShellMaj7" else ""
+            return ChordInfo(label=f"{roman}{major_mark}{fig}*",
+                             category="diatonic",
+                             root_pc=root_pc, quality=real_quality,
+                             inversion=inv, bass_pc=bass_pc,
+                             key_pc=key_pc)
+
+        if quality == "ShellMaj9":
+            inv = self._seventh_inversion(root_pc, bass_pc)
+            if inv == "7":
+                fig = _sup("7")
+            elif inv == "65":
+                fig = _sup("6") + _sub("5")
+            elif inv == "43":
+                fig = _sup("4") + _sub("3")
+            else:
+                fig = _sup("4") + _sub("2")
+            return ChordInfo(label=f"{roman}\u1D39{_sup('9')}{fig}*",
+                             category="diatonic",
+                             root_pc=root_pc, quality="Major9",
+                             inversion=inv, bass_pc=bass_pc,
+                             key_pc=key_pc)
+
+        if quality == "Dominant9":
+            inv = self._seventh_inversion(root_pc, bass_pc)
+            if inv == "7":
+                fig = _sup("7")
+            elif inv == "65":
+                fig = _sup("6") + _sub("5")
+            elif inv == "43":
+                fig = _sup("4") + _sub("3")
+            else:
+                fig = _sup("4") + _sub("2")
+            return ChordInfo(label=f"{roman}{_sup('9')}{fig}",
+                             category="diatonic",
+                             root_pc=root_pc, quality="Dominant9",
+                             inversion=inv, bass_pc=bass_pc,
+                             key_pc=key_pc)
+
+        if quality == "Dominant13":
+            inv = self._seventh_inversion(root_pc, bass_pc)
+            if inv == "7":
+                fig = _sup("7")
+            elif inv == "65":
+                fig = _sup("6") + _sub("5")
+            elif inv == "43":
+                fig = _sup("4") + _sub("3")
+            else:
+                fig = _sup("4") + _sub("2")
+            return ChordInfo(label=f"{roman}{_sup('13')}{fig}",
+                             category="diatonic",
+                             root_pc=root_pc, quality="Dominant13",
+                             inversion=inv, bass_pc=bass_pc,
+                             key_pc=key_pc)
+
+        if quality == "Dominant7Add11":
+            inv = self._seventh_inversion(root_pc, bass_pc)
+            if inv == "7":
+                fig = _sup("7")
+            elif inv == "65":
+                fig = _sup("6") + _sub("5")
+            elif inv == "43":
+                fig = _sup("4") + _sub("3")
+            else:
+                fig = _sup("4") + _sub("2")
+            return ChordInfo(label=f"{roman}{_sup('7')}{fig}{_sup('add11')}",
+                             category="diatonic",
+                             root_pc=root_pc, quality="Dominant7",
+                             inversion=inv, bass_pc=bass_pc,
+                             key_pc=key_pc)
+
+        if quality == "Dom7b9No3":
+            inv = self._seventh_inversion(root_pc, bass_pc)
+            if inv == "7":
+                fig = _sup("7")
+            elif inv == "65":
+                fig = _sup("6") + _sub("5")
+            elif inv == "43":
+                fig = _sup("4") + _sub("3")
+            else:
+                fig = _sup("4") + _sub("2")
+            return ChordInfo(label=f"{roman}{_sup('7')}{_sup('b9')}{fig}*",
+                             category="diatonic",
+                             root_pc=root_pc, quality="Dominant7",
+                             inversion=inv, bass_pc=bass_pc,
+                             key_pc=key_pc)
+
+        if quality == "Dom7b5Shell":
+            inv = self._seventh_inversion(root_pc, bass_pc)
+            if inv == "7":
+                fig = _sup("7")
+            elif inv == "65":
+                fig = _sup("6") + _sub("5")
+            elif inv == "43":
+                fig = _sup("4") + _sub("3")
+            else:
+                fig = _sup("4") + _sub("2")
+            return ChordInfo(label=f"{roman}{_sup('7')}{_sup('b5')}{fig}*",
+                             category="diatonic",
+                             root_pc=root_pc, quality="Dominant7",
+                             inversion=inv, bass_pc=bass_pc,
+                             key_pc=key_pc)
+
         if quality == "AugMajor7":
             inv = self._seventh_inversion(root_pc, bass_pc)
             if inv == "7":
@@ -760,7 +894,7 @@ class ErrorDetail:
 class GradingReport:
     faults: List[ErrorDetail] = field(default_factory=list)
     final_score: int = 100
-    context: Optional[Any] = None   # the CompositionContext from submit()
+    context: Optional[Any] = None
 
     def add_fault(self, fault: ErrorDetail) -> None:
         self.faults.append(fault)
@@ -804,8 +938,6 @@ class RulesEngine:
             rules = self._parse(path, i)
             self.rules.extend(rules)
             loaded_summary.append((os.path.basename(path), len(rules)))
-        # Diagnostic: print what was loaded so you can verify at a
-        # glance that all six rule files are present and non-empty.
         print(f"[rules] loaded {len(self.rules)} rules: {loaded_summary}")
 
     def _parse(self, file_path, pass_number):
@@ -847,9 +979,6 @@ class SubmissionEngine:
             return report
         ctx = analyze_composition(composition, key_signature,
                                   self.analyzer, layout=layout)
-        # Stash the context on the report so callers can build
-        # an AI-friendly analysis bundle without re-running the
-        # pipeline.
         report.context = ctx
         for index, chord in enumerate(ctx.chords):
             for rule in rules:
