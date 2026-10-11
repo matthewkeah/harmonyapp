@@ -37,3 +37,6 @@ validation/chorales_sharm/
 
 # User workspace outputs
 *.sharm.bak
+
+# Per-chorale fault reports (regenerated on each Submit Harmony)
+reports/

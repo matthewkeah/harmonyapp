@@ -4,8 +4,8 @@
     "covers": "Units 16-21. Chain progressions by 5ths and 3rds, diatonic sequences, minor v in major, consonant 6/4 classification, and a heuristic for unresolved accented non-chord tones.",
     "structure": "Every rule has: rule_id, tier, category, weight, error_message, check.",
     "handlers_registered_in": "sheria_pass4.py",
-    "note_on_figuration": "Units 20-21 (passing tones, neighbors, suspensions, anticipations, pedal points) are not fully modelled because the harmony slice-builder currently treats every sounding note as a chord tone. P4-ACCENTED-NCT is a best-effort heuristic; full figuration rules await a slice-builder rework.",
-    "note_on_sequences": "Ascending 5th and ascending 3rd motions are suppressed inside recognised sequences (Unit 17). Parallel perfects in sequences are NOT suppressed (Pass 1 has no sequence awareness).",
+    "note_on_figuration": "Units 20-21 (passing tones, neighbors, suspensions, anticipations, pedal points) are not fully modelled because the harmony slice-builder currently treats every sounding note as a chord tone. P4-ACCENTED-NCT is a best-effort heuristic.",
+    "note_on_sequences": "Ascending 5th motions are suppressed inside recognised sequences (Unit 17). The P4-ASC-THIRD-WEAK rule was deleted because ascending 3rd root motion is extremely common and musically legitimate in I-iii, IV-vi, and ii-IV progressions; it is a quality characteristic, not a fault.",
     "how_to_add_a_rule": [
       "1. Copy a rule block between { and }.",
       "2. Give it a new unique rule_id.",
@@ -25,15 +25,6 @@
       "weight": 6,
       "error_message": "Root motion by ascending 5th is a retrogression — the tonal current flows by descending 5th and descending 3rd",
       "check": { "type": "ascending_fifth_retrogression" }
-    },
-
-    {
-      "rule_id": "P4-ASC-THIRD-WEAK",
-      "tier": "CONTEXTUAL",
-      "category": "Harmonic Syntax",
-      "weight": 3,
-      "error_message": "Root motion by ascending 3rd is weak — the new root is already present in the previous chord. Allowed inside sequences.",
-      "check": { "type": "ascending_third_root_motion" }
     },
 
     {

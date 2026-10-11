@@ -5,6 +5,7 @@
     "structure": "Every rule has: rule_id, tier, category, weight, error_message, check.",
     "handlers_registered_in": "sheria_pass1.py",
     "note_on_doubling": "Root doubling in a root-position triad is a tendency, not a rule (Aldwell & Schachter, Unit 5 §3). Only the leading tone and the chordal seventh must never be doubled. Doubling the fifth, or doubling the third when voice leading requires it, is permitted. The rules here flag only the absolute prohibitions and, for the third, triple doubling.",
+    "note_on_spacing": "Aldwell & Schachter, Unit 5 §5 constrains adjacent voices only: S-A and A-T to an octave, T-B to two octaves. There is no rule about S-B span; two octaves between soprano and bass is normal in four-voice texture.",
     "how_to_add_a_rule": [
       "1. Copy a rule block between { and }.",
       "2. Give it a new unique rule_id.",
@@ -83,30 +84,6 @@
       "check": {
         "type": "voice_pair_interval",
         "voices": ["tenor", "bass"],
-        "max_semitones": 24
-      }
-    },
-    {
-      "rule_id": "SPACING-SB",
-      "tier": "PHYSICAL",
-      "category": "Spacing",
-      "weight": 4,
-      "error_message": "Soprano and Bass span more than two octaves",
-      "check": {
-        "type": "voice_pair_interval",
-        "voices": ["soprano", "bass"],
-        "max_semitones": 24
-      }
-    },
-    {
-      "rule_id": "SPACING-ST",
-      "tier": "PHYSICAL",
-      "category": "Spacing",
-      "weight": 4,
-      "error_message": "Soprano and Tenor are more than two octaves apart",
-      "check": {
-        "type": "voice_pair_interval",
-        "voices": ["soprano", "tenor"],
         "max_semitones": 24
       }
     },

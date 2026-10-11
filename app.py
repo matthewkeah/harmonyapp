@@ -176,6 +176,7 @@ class SmartHarmonyAssistant(ctk.CTk):
         self._playhead_poll_id = None
         self._playhead_active = False
         self._barline_hitboxes = []
+        self._last_loaded_path = None
 
         self._build_navbar()
         self._build_canvas()
@@ -760,11 +761,6 @@ class SmartHarmonyAssistant(ctk.CTk):
         self.active_insts = settings["instruments"]
         self.active_vols = settings["volumes"]
 
-        # Resolve key -> signature BEFORE touching the layout. The
-        # BarLayout stores signature names, not key names. Passing
-        # a key name (e.g. "A Minor") to set_initial would leave every
-        # later _recalculate_pitch call looking for KEY_OFFSETS
-        # entries that don't exist.
         info = KEYS.get(self.current_key_name, KEYS["C Major"])
         self.key_signature = KeySignature(info["root"], mode=info["mode"])
         self.current_signature_name = info["signature"]
@@ -844,6 +840,7 @@ class SmartHarmonyAssistant(ctk.CTk):
         self._load_from_path(path)
 
     def _load_from_path(self, path):
+        self._last_loaded_path = path
         try:
             with open(path, "r", encoding="utf-8") as f:
                 data = json.load(f)
@@ -860,11 +857,6 @@ class SmartHarmonyAssistant(ctk.CTk):
         self.current_time_sig = data.get("time_sig", DEFAULT_TIME_SIGNATURE)
         self.current_tempo = data.get("tempo", 120)
         raw_insts = list(data.get("instruments", self.active_insts))
-        # Older .sharm files (and the current converter) record
-        # "Piano", which is not a General MIDI instrument name and
-        # falls through to the default. Translate it to the app's
-        # default French Horn so the Settings dialog reports what is
-        # actually sounding.
         self.active_insts = [
             "French Horn" if name == "Piano" else name
             for name in raw_insts
@@ -1369,14 +1361,6 @@ class SmartHarmonyAssistant(ctk.CTk):
             bar = self.bar_layout.bar_at(note["time_ticks"])
             key_of_note = bar.key_sig_name
 
-            # KEY_OFFSETS is keyed by signature name ("C Major",
-            # "F Major"), not by key name ("A Minor", "D Minor").
-            # If a key name has leaked into the layout — from an
-            # older workspace file, from a settings change that
-            # predates the fix in _apply_settings, or from any other
-            # path — translate through KEYS before falling back to
-            # no offsets. This keeps a stale label from crashing the
-            # app mid-edit.
             offsets = KEY_OFFSETS.get(key_of_note)
             if offsets is None:
                 info = KEYS.get(key_of_note)
@@ -1591,9 +1575,6 @@ class SmartHarmonyAssistant(ctk.CTk):
 
                 nn = NoteNode(n['pitch'], n['ticks'])
                 v = n.get('voice', 0)
-                # First note per voice wins. Because `notes` is sorted
-                # by descending pitch, this keeps the highest pitch of
-                # each voice, matching build_vertical_slices.
                 if v == 0 and vs.soprano is None:
                     vs.soprano = nn
                 elif v == 1 and vs.alto is None:
@@ -1604,9 +1585,7 @@ class SmartHarmonyAssistant(ctk.CTk):
                     vs.bass = nn
 
             # Draw all accidentals for this onset as a single stacked
-            # column, left of the leftmost notehead. Standard music
-            # engraving does not attach accidentals to individual
-            # noteheads; they form a chord-wide column.
+            # column, left of the leftmost notehead.
             acc_entries = []
             for n in notes:
                 acc = n.get("accidental")
@@ -1618,7 +1597,7 @@ class SmartHarmonyAssistant(ctk.CTk):
                 color = "#00A2E8" if is_sel else note_color
                 acc_entries.append((sx, sy, acc, color))
             if acc_entries:
-                draw_chord_accidentals(self.canvas, acc_entries)                    
+                draw_chord_accidentals(self.canvas, acc_entries)
 
             # Fill any still-empty voice slots from held-over notes.
             for n in self.notes_db:
@@ -1891,6 +1870,92 @@ class SmartHarmonyAssistant(ctk.CTk):
     def on_play(self):
         self._playback_toggle()
 
+    def _write_fault_report(self, report, slices,
+                            final_score, raw_penalty):
+        """Write a per-chorale fault report for post-mortem
+        fine-tuning.
+
+        The file goes to <project_root>/reports/<basename>.faults.txt.
+        If no .sharm file was loaded, the report is named
+        untitled.faults.txt. Reports are plain text, ordered by tick,
+        with a grouped summary at the end.
+        """
+        import datetime
+        from collections import Counter
+
+        if self._last_loaded_path:
+            base = os.path.splitext(
+                os.path.basename(self._last_loaded_path))[0]
+        else:
+            base = "untitled"
+
+        reports_dir = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "reports")
+        os.makedirs(reports_dir, exist_ok=True)
+        report_path = os.path.join(reports_dir, f"{base}.faults.txt")
+
+        lines = []
+        lines.append(f"FAULT REPORT \u2014 {base}.sharm")
+        lines.append(f"Generated: "
+                     f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        lines.append(f"Key: {self.current_key_name}    "
+                     f"Time: {self.current_time_sig}    "
+                     f"Tempo: {self.current_tempo}")
+        lines.append(f"Slices: {len(slices)}    "
+                     f"Score: {final_score}/100    "
+                     f"Raw penalty: {raw_penalty}")
+        lines.append("")
+
+        faults = list(report.faults)
+
+        lines.append("=" * 72)
+        lines.append(f"FAULTS IN ORDER ({len(faults)})")
+        lines.append("=" * 72)
+        lines.append("")
+
+        for i, f in enumerate(faults, 1):
+            voices = ",".join(f.voices) if f.voices else "-"
+            prev = "" if f.prev_tick is None else \
+                f"  prev_tick={f.prev_tick}"
+            lines.append(f"{i:>3}. {f.rule_id:<32} "
+                         f"w={f.penalty_weight:<2} "
+                         f"tick={f.tick_coordinate:<6} "
+                         f"voices=[{voices}]{prev}")
+            lines.append(f"      {f.error_message}")
+            lines.append("")
+
+        counts = Counter(f.rule_id for f in faults)
+        if counts:
+            lines.append("=" * 72)
+            lines.append("FAULTS BY RULE")
+            lines.append("=" * 72)
+            for rule_id, count in counts.most_common():
+                lines.append(f"  {count:>5}  {rule_id}")
+            lines.append("")
+
+        unknowns = []
+        for vs in slices:
+            try:
+                ci = self.analyzer.analyze(vs, self.key_signature)
+            except Exception:
+                continue
+            if ci.label == "?":
+                pcs = sorted({n.pitch % 12 for n in vs.get_notes()})
+                unknowns.append((vs.tick, pcs))
+
+        if unknowns:
+            lines.append("=" * 72)
+            lines.append(f"UNKNOWN CHORDS ({len(unknowns)})")
+            lines.append("=" * 72)
+            for tick, pcs in unknowns:
+                lines.append(f"  tick={tick:<6}  pcs={pcs}")
+            lines.append("")
+
+        with open(report_path, "w", encoding="utf-8") as fh:
+            fh.write("\n".join(lines))
+
+        print(f"[report] wrote {report_path}")
+
     def on_submit(self):
         for widget in self.report_frame.winfo_children():
             widget.destroy()
@@ -1925,6 +1990,10 @@ class SmartHarmonyAssistant(ctk.CTk):
         self.active_quality_tick = None
 
         self._redraw_all()
+
+        # Write a per-chorale fault report for post-mortem fine-tuning.
+        self._write_fault_report(report, horizontal_slices,
+                                 final_score, raw)
 
         score_color = "#008000" if final_score >= 80 else (
             "#C8A800" if final_score >= 60 else "#CC0000")
