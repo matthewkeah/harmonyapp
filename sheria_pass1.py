@@ -49,13 +49,6 @@ def voice_pair_interval(checker, rule, spec, chord, ctx, index):
 
 
 def voice_crossing(checker, rule, spec, chord, ctx, index):
-    """Voice crossing.
-
-    A voice pair that remains crossed across several consecutive
-    chords is a single event, not one fault per chord. We report the
-    crossing only at the moment it begins, by skipping any pair that
-    was also crossed in the previous chord.
-    """
     faults = []
     prev = checker._prev(ctx, index)
     for i in range(len(VOICE_ORDER) - 1):
@@ -67,7 +60,6 @@ def voice_crossing(checker, rule, spec, chord, ctx, index):
             continue
         if upper.pitch >= lower.pitch:
             continue
-        # Suppress if this same pair was already crossing.
         if prev is not None:
             p_upper = getattr(prev.slice, upper_name, None)
             p_lower = getattr(prev.slice, lower_name, None)
@@ -205,14 +197,6 @@ def doubling_leading_tone(checker, rule, spec, chord, ctx, index):
 
 
 def doubling_chord_tone(checker, rule, spec, chord, ctx, index):
-    """Doubling of a chord tone.
-
-    Supports an optional `six_four_types` filter so that a rule can
-    be restricted to specific classes of 6/4 chords. The second-
-    inversion doubling rule, for example, is strictest for the
-    cadential 6/4 and more permissive for passing and neighbouring
-    six-fours.
-    """
     if "six_four_types" in spec:
         if chord.six_four_type not in spec["six_four_types"]:
             return []
@@ -273,6 +257,18 @@ def doubling_seventh(checker, rule, spec, chord, ctx, index):
 
 
 def triad_completeness(checker, rule, spec, chord, ctx, index):
+    """Triad completeness.
+
+    The third is the defining interval of a triad, but Bach omits
+    it occasionally on weak beats, in passing chords, and in second
+    inversions. Restrict this rule to strong-beat chords in root
+    position or first inversion, where the triadic quality must be
+    unambiguous.
+    """
+    if chord.metric_position != "strong":
+        return []
+    if chord.inversion == "64":
+        return []
     info = _A.analyze(chord.slice, ctx.key)
     q = info.quality
     if q not in ("Major", "Minor", "Diminished", "Augmented"):

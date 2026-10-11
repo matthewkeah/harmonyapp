@@ -22,15 +22,12 @@ def leading_tone_resolution(checker, rule, spec, chord, ctx, index):
     prev = checker._prev(ctx, index)
     if prev is None:
         return []
-
     if prev.function != "dominant":
         return []
-
     if chord.function != "tonic":
         return []
 
     lt_pc = (ctx.key.root_pitch_class + 11) % 12
-
     if any(n.pitch % 12 == lt_pc for n in chord.slice.get_notes()):
         return []
 
@@ -52,13 +49,10 @@ def leading_tone_resolution(checker, rule, spec, chord, ctx, index):
 
         if diff == 1 and target_pc == tonic_pc:
             continue
-
         if vname in ("alto", "tenor") and abs(diff) <= 2:
             continue
-
         if vname in ("alto", "tenor") and target_pc == fifth_pc:
             continue
-
         if prev.inversion == "43" and chord.inversion == "6" and diff > 0:
             continue
 
@@ -76,7 +70,6 @@ def seventh_resolution(checker, rule, spec, chord, ctx, index):
     prev_info = _A.analyze(prev.slice, ctx.key)
     if prev_info.root_pc == -1 or "7" not in prev_info.quality:
         return []
-
     if prev.category not in ("diatonic", "secondary"):
         return []
 
@@ -102,8 +95,14 @@ def seventh_resolution(checker, rule, spec, chord, ctx, index):
         if p.pitch % 12 != seventh_pc:
             continue
         diff = c.pitch - p.pitch
-        if diff in (-1, -2):
-            continue
+
+        if vname in ("alto", "tenor"):
+            if -4 <= diff <= -1:
+                continue
+        else:
+            if diff in (-1, -2):
+                continue
+
         if allow_upward and diff in (1, 2):
             continue
         faults.append(ErrorDetail(
@@ -254,14 +253,6 @@ def closing_chord_must_be_tonic(checker, rule, spec, chord, ctx, index):
 
 
 def cadence_at_closing(checker, rule, spec, chord, ctx, index):
-    """Final cadence type at the end of a piece.
-
-    The truly fatal condition is: the piece does not end on the
-    tonic. Any arrival on a tonic triad — perfect authentic,
-    imperfect authentic, plagal, or modal — is acceptable. The
-    specific cadence type is a quality observation, not a fault,
-    and is reported by the quality rule set.
-    """
     if index != len(ctx.chords) - 1:
         return []
     if not _is_identifiable(chord):
@@ -316,6 +307,16 @@ def intermediate_must_not_resolve_to_tonic(checker, rule, spec, chord, ctx, inde
 
 
 def v7_must_not_go_to_i6(checker, rule, spec, chord, ctx, index):
+    """V7 → I6.
+
+    The textbook prohibits this resolution because the leading tone
+    clashes with the bass 3 (creating hidden octaves in the outer
+    voices). But V7 → I6 → V65 is a common prolongation in Bach: the
+    seventh is transferred rather than resolved, and the resolution
+    is deferred until the next chord. When the seventh pc survives
+    into the target chord, the resolution has been delayed, not
+    avoided — skip the fault.
+    """
     prev = checker._prev(ctx, index)
     if prev is None:
         return []
@@ -331,6 +332,11 @@ def v7_must_not_go_to_i6(checker, rule, spec, chord, ctx, index):
         return []
     if prev.inversion == "43":
         return []
+
+    seventh_pc = (prev.root_pc + 10) % 12
+    if any(n.pitch % 12 == seventh_pc for n in chord.slice.get_notes()):
+        return []
+
     return [ErrorDetail(rule.error_message, rule.weight, chord.tick,
                         voices=["bass"], prev_tick=prev.tick)]
 
@@ -361,6 +367,11 @@ def v42_must_resolve_to_i6(checker, rule, spec, chord, ctx, index):
     v_pc = (ctx.key.root_pitch_class + 7) % 12
     if prev.root_pc != v_pc:
         return []
+
+    seventh_pc = (prev.root_pc + 10) % 12
+    if any(n.pitch % 12 == seventh_pc for n in chord.slice.get_notes()):
+        return []
+
     key_pc = ctx.key.root_pitch_class
     if chord.root_pc != key_pc:
         return [ErrorDetail(rule.error_message, rule.weight, chord.tick,
@@ -396,11 +407,28 @@ def v43_resolution_appropriate(checker, rule, spec, chord, ctx, index):
 
 
 def weak_strong_same_chord(checker, rule, spec, chord, ctx, index):
+    """Same chord repeated from a weak beat to a strong beat.
+
+    The rule targets a within-bar pattern where a chord on the weak
+    part of a bar (or a weak beat of one) repeats on the strong beat
+    of the same bar, neutralising the metric accent. When the two
+    chords are in different bars, the bar line itself provides the
+    metric reset and the rule does not apply. This matters especially
+    in 3/4, where most beats are weak and cross-bar repetitions are
+    idiomatic.
+    """
     prev = checker._prev(ctx, index)
     if prev is None:
         return []
     if not _is_identifiable(prev) or not _is_identifiable(chord):
         return []
+
+    if ctx.layout is not None:
+        prev_bar_idx, _ = ctx.layout.locate(prev.tick)
+        curr_bar_idx, _ = ctx.layout.locate(chord.tick)
+        if prev_bar_idx != curr_bar_idx:
+            return []
+
     if prev.metric_position != "weak":
         return []
     if chord.metric_position not in ("strong", "medium"):
