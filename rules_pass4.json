@@ -1,11 +1,12 @@
 {
   "_readme": {
     "pass": 4,
-    "covers": "Units 16-21. Chain progressions by 5ths and 3rds, diatonic sequences, minor v in major, consonant 6/4 classification, and a heuristic for unresolved accented non-chord tones.",
+    "covers": "Units 16-21. Chain progressions by 5ths and 3rds, diatonic sequences, minor v in major, and a heuristic for unresolved accented non-chord tones.",
     "structure": "Every rule has: rule_id, tier, category, weight, error_message, check.",
     "handlers_registered_in": "sheria_pass4.py",
     "note_on_figuration": "Units 20-21 (passing tones, neighbors, suspensions, anticipations, pedal points) are not fully modelled because the harmony slice-builder currently treats every sounding note as a chord tone. P4-ACCENTED-NCT is a best-effort heuristic.",
-    "note_on_sequences": "Ascending 5th motions are suppressed inside recognised sequences (Unit 17). The P4-ASC-THIRD-WEAK rule was deleted because ascending 3rd root motion is extremely common and musically legitimate in I-iii, IV-vi, and ii-IV progressions; it is a quality characteristic, not a fault.",
+    "note_on_sequences": "Ascending 5th motions are suppressed inside recognised sequences (Unit 17).",
+    "note_on_6_4": "The old P4-UNKNOWN-64 rule was deleted. It fired on any 6/4 that did not fit the cadential/passing/neighboring/arpeggiated classification, but the classifier requires exact root matches between neighbours that real bass lines rarely provide. 6/4 usage is now rated by the quality layer rather than flagged as a fault.",
     "how_to_add_a_rule": [
       "1. Copy a rule block between { and }.",
       "2. Give it a new unique rule_id.",
@@ -34,15 +35,6 @@
       "weight": 3,
       "error_message": "Minor v in a major key — a modal colouring that departs from the diatonic dominant",
       "check": { "type": "minor_v_in_major" }
-    },
-
-    {
-      "rule_id": "P4-UNKNOWN-64",
-      "tier": "CONTEXTUAL",
-      "category": "Consonant 6/4",
-      "weight": 5,
-      "error_message": "6/4 chord with no idiomatic function — should be cadential, passing, neighboring, or arpeggiated",
-      "check": { "type": "unknown_consonant_six_four" }
     },
 
     {
