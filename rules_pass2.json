@@ -1,0 +1,224 @@
+{
+  "_readme": {
+    "pass": 2,
+    "covers": "Units 6-10. Cadences, 6/4 chords, V7 and its inversions, I6/V6/VII6, intermediate harmonies IV/II/II6, leading-tone resolution refinements, and the meter/syntax rules from Units 6-10.",
+    "structure": "Every rule has: rule_id, tier, category, weight, error_message, check.",
+    "handlers_registered_in": "sheria_pass2.py",
+    "how_to_add_a_rule": [
+      "1. Copy a rule block between { and }.",
+      "2. Give it a new unique rule_id.",
+      "3. Choose a check.type that Pass 1 or Pass 2 registered.",
+      "4. Adjust the numbers inside check.",
+      "5. Rewrite error_message in plain English.",
+      "6. Save. No trailing comma after the last rule."
+    ]
+  },
+
+  "rules": [
+
+    {
+      "rule_id": "P2-RESOLVE-LT-OUTER",
+      "tier": "VOICE_LEADING",
+      "category": "Resolution",
+      "weight": 8,
+      "error_message": "Leading tone in an outer voice did not resolve up to the tonic",
+      "check": {
+        "type": "leading_tone_resolution",
+        "voices": ["soprano", "bass"]
+      }
+    },
+    {
+      "rule_id": "P2-RESOLVE-LT-ANY",
+      "tier": "VOICE_LEADING",
+      "category": "Resolution",
+      "weight": 5,
+      "error_message": "Leading tone did not resolve up to the tonic",
+      "check": {
+        "type": "leading_tone_resolution",
+        "voices": ["soprano", "alto", "tenor", "bass"]
+      }
+    },
+    {
+      "rule_id": "P2-RESOLVE-SEVENTH",
+      "tier": "VOICE_LEADING",
+      "category": "Resolution",
+      "weight": 10,
+      "error_message": "The seventh of a seventh chord did not resolve down by step",
+      "check": { "type": "seventh_resolution" }
+    },
+
+    {
+      "rule_id": "P2-V7-TO-I6",
+      "tier": "VOICE_LEADING",
+      "category": "Resolution",
+      "weight": 8,
+      "error_message": "V7 (or its inversions) must not resolve to I6 — the leading tone clashes with the bass 3",
+      "check": { "type": "v7_must_not_go_to_i6" }
+    },
+    {
+      "rule_id": "P2-V65-BASS-ASCEND",
+      "tier": "VOICE_LEADING",
+      "category": "Resolution",
+      "weight": 8,
+      "error_message": "The bass of V6/5 must ascend to 1",
+      "check": { "type": "v65_bass_must_ascend" }
+    },
+    {
+      "rule_id": "P2-V42-TO-I6",
+      "tier": "VOICE_LEADING",
+      "category": "Resolution",
+      "weight": 8,
+      "error_message": "V4/2 must resolve to I6 (bass 4 descends to 3)",
+      "check": { "type": "v42_must_resolve_to_i6" }
+    },
+    {
+      "rule_id": "P2-V43-RESOLUTION",
+      "tier": "VOICE_LEADING",
+      "category": "Resolution",
+      "weight": 8,
+      "error_message": "V4/3 must resolve to I or I6 (the seventh resolves down or ascends in parallel tenths)",
+      "check": { "type": "v43_resolution_appropriate" }
+    },
+    {
+      "rule_id": "P2-V7-I-DOUBLED-3RD",
+      "tier": "VOICE_LEADING",
+      "category": "Resolution",
+      "weight": 5,
+      "error_message": "Similar motion into a doubled third at V7-I creates an unpleasant effect",
+      "check": { "type": "v7_i_similar_to_doubled_3rd" }
+    },
+
+    {
+      "rule_id": "P2-CAD-ROOT-POS",
+      "tier": "CONTEXTUAL",
+      "category": "Cadence",
+      "weight": 8,
+      "error_message": "An authentic cadence requires root-position V and I",
+      "check": { "type": "cadence_requires_root_position" }
+    },
+    {
+      "rule_id": "P2-PAC-SOPRANO-1",
+      "tier": "CONTEXTUAL",
+      "category": "Cadence",
+      "weight": 6,
+      "error_message": "A perfect authentic cadence requires the soprano to end on 1",
+      "check": { "type": "perfect_authentic_requires_tonic_soprano" }
+    },
+    {
+      "rule_id": "P2-CAD-LT-SOPRANO-RESOLVE",
+      "tier": "CONTEXTUAL",
+      "category": "Cadence",
+      "weight": 8,
+      "error_message": "At a cadence, the soprano leading tone must resolve up to 1",
+      "check": {
+        "type": "leading_tone_must_resolve_at_cadence",
+        "voices": ["soprano"]
+      }
+    },
+    {
+      "rule_id": "P2-CAD-LT-BASS-RESOLVE",
+      "tier": "CONTEXTUAL",
+      "category": "Cadence",
+      "weight": 8,
+      "error_message": "At a cadence, the bass leading tone must resolve up to 1",
+      "check": {
+        "type": "leading_tone_must_resolve_at_cadence",
+        "voices": ["bass"]
+      }
+    },
+
+    {
+      "rule_id": "P2-CAD-6-4-BASS-DOUBLED",
+      "tier": "CONTEXTUAL",
+      "category": "Cadential 6/4",
+      "weight": 6,
+      "error_message": "The bass of a cadential 6/4 should be doubled",
+      "check": {
+        "type": "cadential_6_4_bass_doubled",
+        "min_count": 2
+      }
+    },
+    {
+      "rule_id": "P2-CAD-6-4-NO-DOUBLE-4",
+      "tier": "CONTEXTUAL",
+      "category": "Cadential 6/4",
+      "weight": 6,
+      "error_message": "The 4th of a cadential 6/4 must not be doubled",
+      "check": { "type": "cadential_6_4_no_doubled_fourth" }
+    },
+    {
+      "rule_id": "P2-CAD-6-4-RESOLVES-V",
+      "tier": "CONTEXTUAL",
+      "category": "Cadential 6/4",
+      "weight": 8,
+      "error_message": "A cadential 6/4 must resolve to V (or V7)",
+      "check": { "type": "cadential_6_4_must_resolve_to_V" }
+    },
+    {
+      "rule_id": "P2-CAD-6-4-STRONG-BEAT",
+      "tier": "CONTEXTUAL",
+      "category": "Cadential 6/4",
+      "weight": 6,
+      "error_message": "A cadential 6/4 must fall on a strong beat relative to its resolution",
+      "check": { "type": "cadential_6_4_strong_beat" }
+    },
+    {
+      "rule_id": "P2-CAD-6-4-4TH-DESCENDS",
+      "tier": "CONTEXTUAL",
+      "category": "Cadential 6/4",
+      "weight": 8,
+      "error_message": "The 4th of a cadential 6/4 must resolve down by step to the 3rd of V",
+      "check": { "type": "cadential_6_4_4th_resolution" }
+    },
+
+    {
+      "rule_id": "P2-OPENING-TONIC",
+      "tier": "CONTEXTUAL",
+      "category": "Formal Position",
+      "weight": 6,
+      "error_message": "A piece should begin on the tonic",
+      "check": { "type": "opening_chord_must_be_tonic" }
+    },
+    {
+      "rule_id": "P2-CLOSING-TONIC",
+      "tier": "CONTEXTUAL",
+      "category": "Formal Position",
+      "weight": 10,
+      "error_message": "A piece must end on a root-position tonic triad",
+      "check": { "type": "closing_chord_must_be_tonic" }
+    },
+    {
+      "rule_id": "P2-CADENCE-AT-END",
+      "tier": "CONTEXTUAL",
+      "category": "Formal Position",
+      "weight": 10,
+      "error_message": "The piece must end with an authentic cadence",
+      "check": { "type": "cadence_at_closing" }
+    },
+
+    {
+      "rule_id": "P2-NO-RETRO",
+      "tier": "CONTEXTUAL",
+      "category": "Harmonic Syntax",
+      "weight": 6,
+      "error_message": "The dominant should not move back to a predominant chord",
+      "check": { "type": "no_retrogression" }
+    },
+    {
+      "rule_id": "P2-INTERMEDIATE-TO-TONIC",
+      "tier": "CONTEXTUAL",
+      "category": "Harmonic Syntax",
+      "weight": 6,
+      "error_message": "An intermediate harmony (ii or ii6) must not resolve directly to the tonic; it should lead to V or V7",
+      "check": { "type": "intermediate_must_not_resolve_to_tonic" }
+    },
+    {
+      "rule_id": "P2-WEAK-STRONG-SAME",
+      "tier": "CONTEXTUAL",
+      "category": "Harmonic Syntax",
+      "weight": 4,
+      "error_message": "The same chord is repeated from a weak to a strong beat, contradicting the meter",
+      "check": { "type": "weak_strong_same_chord" }
+    }
+  ]
+}

@@ -1,0 +1,209 @@
+{
+  "_readme": {
+    "pass": 3,
+    "covers": "Units 11-15. Rated progressions for the chords introduced in this range: supertonic and subdominant seventh chords in all inversions, applied dominants and tonicization, and the passing motion IV6 -> I6 within an expanded tonic.",
+    "structure": "Each rule has: id, quality, from, to, feedback.",
+    "matching": {
+      "from": "Root numerals for the previous chord. Empty list = applies only to the first chord.",
+      "to": "Root numerals for the current chord.",
+      "wildcard": "'*' matches any numeral.",
+      "bare_root": "A bare numeral like 'V' matches any inversion of V.",
+      "figured": "A numeral with a figure like 'V65' matches only that inversion.",
+      "applied": "Applied dominants are written with a slash, e.g. 'V/V' or 'V7/V'.",
+      "case": "In minor keys the analyzer emits uppercase VII for the natural (modal) subtonic and lowercase vii for the raised (harmonic-minor) leading tone. Both forms are listed where a rule is intended to cover the seventh degree in either spelling."
+    },
+    "how_to_add_a_rule": [
+      "1. Copy a rule block between { and }.",
+      "2. Give it a new unique id.",
+      "3. Set from and to as above.",
+      "4. Pick a quality: excellent, good, fair, discouraged, bad.",
+      "5. Write feedback in plain English.",
+      "6. Save. No trailing comma after the last rule."
+    ]
+  },
+
+  "rules": [
+
+    {
+      "id": "APP-V-TO-V",
+      "quality": "excellent",
+      "from": ["V/V", "V7/V"],
+      "to": ["V", "V7"],
+      "feedback": "Applied dominant of V resolving to V. Tonicizes the dominant — the strongest way to intensify a cadential approach without leaving the home key."
+    },
+    {
+      "id": "APP-V-TO-II",
+      "quality": "excellent",
+      "from": ["V/II", "V7/II"],
+      "to": ["ii", "ii6", "ii7", "ii65", "ii43", "ii42"],
+      "feedback": "Applied dominant of ii resolving to ii. Prepares the predominant area with a strong local tonicization."
+    },
+    {
+      "id": "APP-V-TO-VI",
+      "quality": "good",
+      "from": ["V/VI", "V7/VI"],
+      "to": ["vi", "VI", "vi6", "VI6"],
+      "feedback": "Applied dominant of vi resolving to vi. Prepares a deceptive-sounding arrival or a tonicization of the relative minor."
+    },
+    {
+      "id": "APP-V-TO-III",
+      "quality": "fair",
+      "from": ["V/III", "V7/III"],
+      "to": ["iii", "III"],
+      "feedback": "Applied dominant of iii resolving to iii. iii is the weakest diatonic goal, so this tonicization rarely stands on its own."
+    },
+    {
+      "id": "APP-V-TO-VII",
+      "quality": "fair",
+      "from": ["V/VII", "V7/VII"],
+      "to": ["vii", "vii\u00B0", "vii\u00B06", "VII", "VII6", "VII64"],
+      "feedback": "Applied dominant of the seventh degree. In a minor key the target is the natural subtonic (VII, a major triad on the modal 7th), which makes the resolution a modal cadence rather than a functional one."
+    },
+    {
+      "id": "APP-V-VII-TO-V",
+      "quality": "good",
+      "from": ["V/VII", "V7/VII"],
+      "to": ["V", "V7"],
+      "feedback": "Applied dominant of VII continuing on to the actual dominant. The tonicized target (VII) is bypassed in favour of the home dominant, producing a chromatic intensification of the cadential approach."
+    },
+
+    {
+      "id": "TONICIZE-V",
+      "quality": "good",
+      "from": ["I", "I6", "IV", "IV6", "ii", "ii6", "vi"],
+      "to": ["V/V", "V7/V"],
+      "feedback": "Introducing the applied dominant of V. This prepares a strong tonicization of the dominant."
+    },
+    {
+      "id": "TONICIZE-II",
+      "quality": "good",
+      "from": ["I", "I6", "vi", "IV", "IV6"],
+      "to": ["V/II", "V7/II"],
+      "feedback": "Introducing the applied dominant of ii. Opens a tonicization of the supertonic, often at the start of a phrase."
+    },
+    {
+      "id": "TONICIZE-VI",
+      "quality": "fair",
+      "from": ["I", "I6", "IV", "IV6", "ii", "ii6"],
+      "to": ["V/VI", "V7/VI"],
+      "feedback": "Introducing the applied dominant of vi. Prepares a tonicization of the submediant or a deceptive arrival."
+    },
+    {
+      "id": "TONICIZE-IV",
+      "quality": "good",
+      "from": ["I", "I6", "IV", "IV6", "ii", "ii6", "vi"],
+      "to": ["V/IV", "V7/IV"],
+      "feedback": "Introducing the applied dominant of IV. In major this is the tonic triad with a minor seventh (I7), which prepares a shift to the subdominant area."
+    },
+    {
+      "id": "TONICIZE-III",
+      "quality": "fair",
+      "from": ["I", "I6", "IV", "IV6", "ii", "ii6", "vi", "VI"],
+      "to": ["V/III", "V7/III"],
+      "feedback": "Introducing the applied dominant of the mediant. Prepares a tonicization of III, common when a major-key passage moves toward its relative minor."
+    },
+    {
+      "id": "TONICIZE-VII",
+      "quality": "good",
+      "from": ["I", "I6", "i", "i6", "IV", "IV6", "iv", "iv6",
+               "VI", "VI6", "vi", "vi6", "III", "III6"],
+      "to": ["V/VII", "V7/VII"],
+      "feedback": "Introducing the applied dominant of the natural seventh. In a minor key this tonicizes the modal subtonic, preparing a modal cadence or a pivot toward the relative major."
+    },
+
+    {
+      "id": "EXP-IV6-I6",
+      "quality": "good",
+      "from": ["IV6"],
+      "to": ["I6", "i6"],
+      "feedback": "IV6 to I6 with a stepwise descent in the bass (6 down to 3). Idiomatic passing motion within an expanded tonic, an alternative to vii\u00B06 or V43."
+    },
+    {
+      "id": "EXP-IV6-V6",
+      "quality": "good",
+      "from": ["IV6"],
+      "to": ["V6", "V65"],
+      "feedback": "IV6 to first-inversion dominant. Bass 6 to 7 with a stepwise ascent into the leading tone. Characteristic of the 6-7-8 bass line."
+    },
+    {
+      "id": "EXP-IV6-VII6",
+      "quality": "good",
+      "from": ["IV6"],
+      "to": ["vii\u00B06"],
+      "feedback": "IV6 to vii\u00B06. Bass 6 to 2 continues the expansion of tonic harmony before the cadence."
+    },
+
+    {
+      "id": "SEV-II7-CAD64",
+      "quality": "good",
+      "from": ["ii7"],
+      "to": ["I64"],
+      "feedback": "Root-position ii7 to the cadential 6/4. The 7th of ii is held over as the 4 of the 6/4, delaying its resolution to the 3 of V."
+    },
+    {
+      "id": "SEV-II65-CAD64",
+      "quality": "excellent",
+      "from": ["ii65"],
+      "to": ["I64"],
+      "feedback": "ii6/5 to the cadential 6/4. The dissonant 7th becomes the 4 of the cadential chord before resolving. One of the strongest pre-cadential approaches."
+    },
+    {
+      "id": "SEV-II42-I6",
+      "quality": "bad",
+      "from": ["ii42"],
+      "to": ["I6", "i6"],
+      "feedback": "ii4/2 to I6. The chordal seventh in the bass must descend by step into V6, not continue into I6. This defeats the purpose of the inversion."
+    },
+    {
+      "id": "SEV-II43-V",
+      "quality": "fair",
+      "from": ["ii43"],
+      "to": ["V", "V7"],
+      "feedback": "ii4/3 to root-position V. The bass leaps 6 to 5 while the seventh resolves. Workable, but the smoother resolution is to V6."
+    },
+    {
+      "id": "SEV-II43-I",
+      "quality": "bad",
+      "from": ["ii43"],
+      "to": ["I", "i"],
+      "feedback": "ii4/3 to tonic. The seventh of ii must resolve down into V; going directly to I leaves the dissonance unresolved."
+    },
+    {
+      "id": "SEV-II42-V65",
+      "quality": "excellent",
+      "from": ["ii42"],
+      "to": ["V65"],
+      "feedback": "ii4/2 to V6/5. The bass is the chordal seventh of ii and falls by step into the leading tone. V6/5 is the only idiomatic continuation."
+    },
+
+    {
+      "id": "SEV-IV7-CAD64",
+      "quality": "good",
+      "from": ["IV7"],
+      "to": ["I64"],
+      "feedback": "IV7 to the cadential 6/4. The 7th of IV becomes the 4 of the 6/4. A frequent chromatic-flavoured approach to the cadence."
+    },
+    {
+      "id": "SEV-IV7-I",
+      "quality": "discouraged",
+      "from": ["IV7"],
+      "to": ["I", "i"],
+      "feedback": "IV7 to tonic. The seventh of IV wants to resolve down into V, not leap to I. The direction is weak."
+    },
+    {
+      "id": "SEV-IV65-V65",
+      "quality": "good",
+      "from": ["IV65"],
+      "to": ["V65"],
+      "feedback": "IV6/5 to V6/5 with a stepwise ascending bass (6 to 7). A characteristic 6-7-8 progression using two seventh chords."
+    },
+    {
+      "id": "SEV-IV65-I",
+      "quality": "fair",
+      "from": ["IV65"],
+      "to": ["I", "i"],
+      "feedback": "IV6/5 to tonic. The seventh of IV resolves down into the root of I, and the bass steps 6 to 1. Acceptable in a non-cadential expansion."
+    }
+
+  ]
+}

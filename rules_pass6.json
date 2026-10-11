@@ -1,0 +1,67 @@
+{
+  "_readme": {
+    "pass": 6,
+    "covers": "Units 27-32. Chromaticism: augmented sixth chords and their resolutions, Neapolitan chords and their resolutions.",
+    "structure": "Every rule has: rule_id, tier, category, weight, error_message, check.",
+    "handlers_registered_in": "sheria_pass6.py",
+    "notation": {
+      "neapolitan": "Following Aldwell & Schachter, the Neapolitan is written N (root position), N⁶ (first inversion, by far the most common), and N⁶⁴ (second inversion, rare).",
+      "augmented_sixth": "It⁶, Fr⁴₃, Ger⁶₅ — the standard figured-bass labels used by the book.",
+      "applied": "V/x and V⁷/x for applied dominants; vii°/x, viiø⁷/x, vii°⁷/x for applied leading-tone chords."
+    },
+    "not_implemented": {
+      "Unit 27": "Added-dissonance chords (9th, 11th, 13th) require the analyzer to recognise 5-note pitch-class sets. Deferred.",
+      "Unit 30": "Altered dominants (V7b5, V7#5) and augmented triads are outside the analyzer's pitch-class vocabulary. Common-tone dim7 requires a new handler. Deferred.",
+      "Unit 31": "Chromatic sequences and equal-division-of-the-octave patterns require a sequence-detection layer that the analyzer does not have. Deferred.",
+      "Unit 32": "Modulation and chromatic tonal areas require a sliding-key architecture. Deferred."
+    },
+    "how_to_add_a_rule": [
+      "1. Copy a rule block between { and }.",
+      "2. Give it a new unique rule_id.",
+      "3. Choose a check.type that a pass module has registered.",
+      "4. Adjust the numbers inside check.",
+      "5. Rewrite error_message in plain English.",
+      "6. Save. No trailing comma after the last rule."
+    ]
+  },
+
+  "rules": [
+
+    {
+      "rule_id": "P6-AUG6-RESOLUTION",
+      "tier": "CHROMATIC",
+      "category": "Augmented Sixth",
+      "weight": 8,
+      "error_message": "Augmented sixth tendency tone did not resolve by half step — b6 must descend to 5, and #4 must ascend to 5",
+      "check": { "type": "augmented_sixth_resolution" }
+    },
+
+    {
+      "rule_id": "P6-AUG6-TO-DOMINANT",
+      "tier": "CHROMATIC",
+      "category": "Augmented Sixth",
+      "weight": 6,
+      "error_message": "An augmented sixth chord must resolve to a chord containing scale degree 5 (V, V7, or I64)",
+      "check": { "type": "augmented_sixth_must_reach_dominant" }
+    },
+
+    {
+      "rule_id": "P6-NEAPOLITAN-B2",
+      "tier": "CHROMATIC",
+      "category": "Neapolitan",
+      "weight": 7,
+      "error_message": "The lowered second (b2) of a Neapolitan should resolve down to 1 or up to 2 — it did neither",
+      "check": { "type": "neapolitan_b2_resolution" }
+    },
+
+    {
+      "rule_id": "P6-NEAPOLITAN-BASS",
+      "tier": "CHROMATIC",
+      "category": "Neapolitan",
+      "weight": 4,
+      "error_message": "The bass of N⁶ (scale degree 4) should normally ascend to 5, descend to 3, or continue to a chromatic sonority",
+      "check": { "type": "neapolitan_bass_motion" }
+    }
+
+  ]
+}

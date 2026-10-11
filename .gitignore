@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# PyInstaller
+build/
+dist/
+*.spec
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Large binary assets
+# SoundFont files are ~140 MB and should not be committed.
+# Users download them separately. See README.
+*.sf2
+*.sf3
+
+# Converted corpus (large; regenerate with the converter)
+bach-370-chorales/kern/*.sharm
+validation/chorales_sharm/
+
+# User workspace outputs
+*.sharm.bak

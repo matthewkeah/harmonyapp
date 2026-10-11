@@ -1,0 +1,438 @@
+{
+  "_readme": {
+    "pass": 2,
+    "covers": "Progression quality for chord types introduced in Units 6-10: I6, V6, VII6, V7 inversions, IV/II/II6 as intermediates, the cadential 6/4, and deceptive resolutions of seventh chords.",
+    "structure": "Each rule has: id, quality, from, to, feedback.",
+    "matching": {
+      "from": "Root numerals for the previous chord. Empty list = applies only to the very first chord.",
+      "to": "Root numerals for the current chord.",
+      "wildcard": "'*' matches any numeral.",
+      "bare_root": "A bare numeral like 'V' matches any inversion of V.",
+      "figured": "A numeral with a figure like 'V65' matches only that inversion."
+    },
+    "how_to_add_a_rule": [
+      "1. Copy a rule block between { and }.",
+      "2. Give it a new unique id.",
+      "3. Set from and to as above.",
+      "4. Pick a quality: excellent, good, fair, discouraged, bad.",
+      "5. Write feedback in plain English.",
+      "6. Save. No trailing comma after the last rule."
+    ]
+  },
+
+  "rules": [
+
+    {
+      "id": "CAD-AUTH-V7-I",
+      "quality": "excellent",
+      "from": ["V7"],
+      "to": ["I", "i"],
+      "feedback": "Root-position V7 to I. The leading tone rises to 1, the seventh falls to 3, and the bass steps to the tonic. The strongest possible authentic close."
+    },
+    {
+      "id": "CAD-AUTH-V65-I",
+      "quality": "excellent",
+      "from": ["V65"],
+      "to": ["I", "i"],
+      "feedback": "V6/5 to I. Bass is the leading tone, which rises to 1 while the chordal seventh falls. The most forceful inversion of V7 at a close."
+    },
+    {
+      "id": "CAD-AUTH-V43-I6",
+      "quality": "excellent",
+      "from": ["V43"],
+      "to": ["I6"],
+      "feedback": "V4/3 to I6. Bass 2 falls to 3 in first inversion and the seventh also descends. Both tendency tones resolve correctly."
+    },
+    {
+      "id": "CAD-AUTH-V42-I6",
+      "quality": "excellent",
+      "from": ["V42"],
+      "to": ["I6"],
+      "feedback": "V4/2 to I6. The bass is the chordal seventh, which must fall by step, so it lands on I6. This is the only idiomatic resolution for V4/2."
+    },
+    {
+      "id": "CAD-AUTH-V7-VI",
+      "quality": "good",
+      "from": ["V7", "V65"],
+      "to": ["vi", "VI"],
+      "feedback": "V7 to vi. A deceptive resolution. The seventh still resolves down, but the other voices slide into vi instead of I, avoiding closure."
+    },
+    {
+      "id": "CAD-DEC-V43-VI",
+      "quality": "fair",
+      "from": ["V43"],
+      "to": ["vi", "VI"],
+      "feedback": "V4/3 to vi. Less common than V7 to vi because the extra seventh makes the deceptive effect stronger than the ear expects."
+    },
+    {
+      "id": "CAD-DEC-V42-VI",
+      "quality": "discouraged",
+      "from": ["V42"],
+      "to": ["vi", "VI"],
+      "feedback": "V4/2 to vi. The seventh in the bass must resolve down by step, so if it does go to vi it lands awkwardly. Avoid this combination."
+    },
+    {
+      "id": "CAD-V7-I6-FORBIDDEN",
+      "quality": "bad",
+      "from": ["V7", "V65", "V42"],
+      "to": ["I6"],
+      "feedback": "V7 to I6. The resolution of the seventh (4-3) combined with the bass motion 5-3 creates bad hidden octaves. Use V5/3 or V6 instead."
+    },
+
+    {
+      "id": "EXP-I6-V6-NEIGHBOR",
+      "quality": "good",
+      "from": ["I6"],
+      "to": ["V6"],
+      "feedback": "I6 to V6 as a neighboring motion. Bass steps 3 to 7 and returns. Idiomatic expansion of tonic within a phrase."
+    },
+    {
+      "id": "EXP-I6-VI",
+      "quality": "good",
+      "from": ["I6"],
+      "to": ["vi", "VI"],
+      "feedback": "I6 to vi. Bass 3 to 6 is a descending third. Idiomatic expansion of tonic into the submediant area."
+    },
+    {
+      "id": "EXP-I6-I64",
+      "quality": "good",
+      "from": ["I6"],
+      "to": ["I64"],
+      "feedback": "I6 to the cadential 6/4. The bass steps 3 to 5, preparing the cadential suspension."
+    },
+    {
+      "id": "EXP-V6-I",
+      "quality": "good",
+      "from": ["V6"],
+      "to": ["I", "i"],
+      "feedback": "V6 to I. Bass 7 rises to 1. One of the smoothest ways to close a phrase without the weight of root-position V."
+    },
+    {
+      "id": "EXP-V6-VI",
+      "quality": "good",
+      "from": ["V6"],
+      "to": ["vi", "VI"],
+      "feedback": "V6 to vi. A deceptive resolution in first inversion. The bass steps 7 to 1 while the upper voices avoid the tonic triad."
+    },
+    {
+      "id": "EXP-V6-V",
+      "quality": "fair",
+      "from": ["V6"],
+      "to": ["V", "V7"],
+      "feedback": "V6 to root-position V. Bass moves 7 to 5. Clear harmonic arrival after the contrapuntal first-inversion stage."
+    },
+    {
+      "id": "EXP-V6-IV",
+      "quality": "discouraged",
+      "from": ["V6"],
+      "to": ["IV", "iv"],
+      "feedback": "V6 to subdominant. The leading tone in the bass must continue by step to I. Going backward to a predominant leaves it unresolved."
+    },
+    {
+      "id": "EXP-I6-IV",
+      "quality": "good",
+      "from": ["I6"],
+      "to": ["IV", "iv"],
+      "feedback": "I6 to IV. Bass moves 3 to 6, giving a smooth stepwise ascent that keeps the harmony moving forward."
+    },
+    {
+      "id": "EXP-I6-II",
+      "quality": "good",
+      "from": ["I6"],
+      "to": ["ii", "ii6", "ii65"],
+      "feedback": "I6 to ii (or ii6). Bass 3 to 4 is a step upward. The predominant first inversion leads cleanly into the cadence."
+    },
+    {
+      "id": "EXP-I6-V",
+      "quality": "good",
+      "from": ["I6"],
+      "to": ["V", "V6", "V7", "V65"],
+      "feedback": "I6 to V. Bass 3 to 5 is a skip of a third, which is fine because the chords are in different functions."
+    },
+    {
+      "id": "EXP-I6-VII6",
+      "quality": "good",
+      "from": ["I6"],
+      "to": ["vii\u00B06"],
+      "feedback": "I6 to vii\u00B06. Bass 3 to 2 opens a stepwise descent back to I. Contrapuntal expansion of tonic."
+    },
+    {
+      "id": "EXP-VII6-I",
+      "quality": "excellent",
+      "from": ["vii\u00B06"],
+      "to": ["I", "i"],
+      "feedback": "vii\u00B06 to I. In first inversion the leading tone sits in the bass and resolves up to the tonic. Textbook contrapuntal close."
+    },
+    {
+      "id": "EXP-VII6-I6",
+      "quality": "good",
+      "from": ["vii\u00B06"],
+      "to": ["I6"],
+      "feedback": "vii\u00B06 to I6. 4 is allowed to ascend to 5 (parallel 10ths above the bass), which produces a fluent stepwise motion."
+    },
+    {
+      "id": "EXP-VII6-V",
+      "quality": "discouraged",
+      "from": ["vii\u00B06"],
+      "to": ["V", "V7"],
+      "feedback": "vii\u00B06 to V. The leading tone in the bass must rise, but V requires it to stay or fall. This clash is why vii\u00B06 rarely resolves to V."
+    },
+    {
+      "id": "EXP-VII6-BETWEEN",
+      "quality": "good",
+      "from": ["I"],
+      "to": ["vii\u00B06"],
+      "feedback": "I to vii\u00B06. A passing chord that opens a stepwise bass line 1-2-3. Prepares the return to I6."
+    },
+    {
+      "id": "EXP-VII6-VI",
+      "quality": "fair",
+      "from": ["vii\u00B06"],
+      "to": ["vi", "VI"],
+      "feedback": "vii\u00B06 to vi. The leading tone in the bass resolves up to the tonic of vi. Deceptive flavour, less common than vii\u00B06 to I."
+    },
+
+    {
+      "id": "INT-IV-V",
+      "quality": "excellent",
+      "from": ["IV", "IV6", "IV65"],
+      "to": ["V", "V7"],
+      "feedback": "Subdominant to dominant. Root motion by step but with the pull of a 5th underneath. The classic pre-cadential preparation."
+    },
+    {
+      "id": "INT-IV6-V",
+      "quality": "excellent",
+      "from": ["IV6"],
+      "to": ["V", "V7"],
+      "feedback": "IV6 to V. Bass 6 to 5 is a descending step — the smoothest approach to a cadence. In minor this is the Phrygian cadence."
+    },
+    {
+      "id": "INT-IV6-I",
+      "quality": "fair",
+      "from": ["IV6"],
+      "to": ["I", "i"],
+      "feedback": "IV6 to I. The bass leaps down a sixth, giving a disjunct effect. Acceptable, but IV or IV6 to V is usually stronger."
+    },
+    {
+      "id": "INT-II6-V",
+      "quality": "excellent",
+      "from": ["ii6"],
+      "to": ["V", "V7"],
+      "feedback": "ii6 to V. Bass 4 to 5 is a step upward into the dominant. Characteristic of Mozart, Haydn, and Beethoven at cadences."
+    },
+    {
+      "id": "INT-II-V",
+      "quality": "excellent",
+      "from": ["ii", "ii7"],
+      "to": ["V", "V7"],
+      "feedback": "Supertonic to dominant. Another step down the circle of fifths. Combined with V to I, this is the fundamental cadential chain."
+    },
+    {
+      "id": "INT-II65-V",
+      "quality": "excellent",
+      "from": ["ii65"],
+      "to": ["V", "V7"],
+      "feedback": "ii6/5 to V. Bass 4 steps up to 5 and the seventh resolves down, giving a smooth cadential approach."
+    },
+    {
+      "id": "INT-II43-V6",
+      "quality": "good",
+      "from": ["ii43"],
+      "to": ["V6"],
+      "feedback": "ii4/3 to V6. Bass 6 falls to 7 (leading tone) and the seventh resolves down. Smooth first-inversion dominant."
+    },
+    {
+      "id": "INT-II42-V6",
+      "quality": "excellent",
+      "from": ["ii42"],
+      "to": ["V6"],
+      "feedback": "ii4/2 to V6. The bass is the chordal seventh of ii, which falls by step. V6 is the only idiomatic resolution."
+    },
+    {
+      "id": "INT-II7-V",
+      "quality": "excellent",
+      "from": ["ii7"],
+      "to": ["V", "V7"],
+      "feedback": "ii7 to V. Bass 2 to 5 is a fourth, so the chord progresses by the circle of fifths. Strong pull into the dominant."
+    },
+    {
+      "id": "INT-IV7-V",
+      "quality": "good",
+      "from": ["IV7"],
+      "to": ["V", "V7"],
+      "feedback": "IV7 to V. The subdominant seventh intensifies the approach to the dominant. Watch for parallel fifths; the standard fix is to leap the alto."
+    },
+    {
+      "id": "INT-II7-OTHER",
+      "quality": "discouraged",
+      "from": ["ii7", "ii65", "ii43", "ii42"],
+      "to": ["I", "i"],
+      "feedback": "Supertonic seventh chord moving to the tonic. The seventh should resolve down by step to V, not skip to I. This weakens the cadential pull."
+    },
+    {
+      "id": "INT-IV6-II6",
+      "quality": "fair",
+      "from": ["IV6"],
+      "to": ["ii6"],
+      "feedback": "IV6 to ii6. Both chords share subdominant function, so the motion feels redundant rather than progressive."
+    },
+    {
+      "id": "INT-II6-IV",
+      "quality": "fair",
+      "from": ["ii6"],
+      "to": ["IV", "iv"],
+      "feedback": "ii6 to subdominant. Both chords share subdominant function, so the direction feels redundant. The subdominant usually precedes the supertonic, not the reverse."
+    },
+    {
+      "id": "INT-I6-II6-PASSING",
+      "quality": "good",
+      "from": ["I6"],
+      "to": ["ii6"],
+      "feedback": "I6 to ii6. Bass 3 to 4 is a step. Idiomatic stepwise approach to the cadential ii6."
+    },
+    {
+      "id": "INT-IV-II6",
+      "quality": "good",
+      "from": ["IV"],
+      "to": ["ii6"],
+      "feedback": "IV to ii6. The 5-6 technique: the subdominant's fifth rises to the sixth above a stationary bass. Idiomatic."
+    },
+
+    {
+      "id": "CAD6-4-APPROACH-I",
+      "quality": "good",
+      "from": ["I", "I6"],
+      "to": ["I64"],
+      "feedback": "Approaching the cadential 6/4 from tonic. The bass steps to 5 while the upper voices embellish. Standard preparation."
+    },
+    {
+      "id": "CAD6-4-APPROACH-IV",
+      "quality": "excellent",
+      "from": ["IV", "IV6"],
+      "to": ["I64"],
+      "feedback": "IV to the cadential 6/4. The subdominant's 4th is held over as the 4th of the 6/4, preparing the suspended dissonance."
+    },
+    {
+      "id": "CAD6-4-APPROACH-II6",
+      "quality": "excellent",
+      "from": ["ii6"],
+      "to": ["I64"],
+      "feedback": "ii6 to the cadential 6/4. The bass 4 to 5 supports the acceleration toward V."
+    },
+    {
+      "id": "CAD6-4-APPROACH-II",
+      "quality": "good",
+      "from": ["ii"],
+      "to": ["I64"],
+      "feedback": "ii to the cadential 6/4. Bass 2 to 5 is a fourth. Prepares the cadence less smoothly than ii6."
+    },
+    {
+      "id": "CAD6-4-TO-V",
+      "quality": "excellent",
+      "from": ["I64"],
+      "to": ["V", "V7"],
+      "feedback": "The cadential 6/4 resolves to V. This is the only resolution that respects the chord's true function — an intensification of the dominant."
+    },
+    {
+      "id": "CAD6-4-TO-V42",
+      "quality": "good",
+      "from": ["I64"],
+      "to": ["V42"],
+      "feedback": "Cadential 6/4 to V4/2. A mid-phrase delay of the cadence — the bass steps down while the dissonance is held over."
+    },
+    {
+      "id": "CAD6-4-TO-I",
+      "quality": "bad",
+      "from": ["I64"],
+      "to": ["I", "i"],
+      "feedback": "Cadential 6/4 resolving directly to I. The chord is not a tonic, so treating it as one leaves the dominant's tension unresolved."
+    },
+    {
+      "id": "CAD6-4-TO-I6",
+      "quality": "discouraged",
+      "from": ["I64"],
+      "to": ["I6", "i6"],
+      "feedback": "Cadential 6/4 to first-inversion tonic. The bass keeps moving but the cadence is weakened. Rarely used."
+    },
+    {
+      "id": "CAD6-4-TO-IV",
+      "quality": "discouraged",
+      "from": ["I64"],
+      "to": ["IV", "iv"],
+      "feedback": "Cadential 6/4 moving to subdominant. Neither chord is heard as a stable point; the 6/4's function is contradicted."
+    },
+    {
+      "id": "CAD6-4-TO-OTHER",
+      "quality": "discouraged",
+      "from": ["I64"],
+      "to": ["*"],
+      "feedback": "A cadential 6/4 must resolve to V or V4/2. Any other resolution contradicts its function as an intensified dominant."
+    },
+
+    {
+      "id": "SEV-PREP-IV7",
+      "quality": "good",
+      "from": ["IV", "IV6"],
+      "to": ["IV7"],
+      "feedback": "IV to IV7. The added seventh is prepared as a common tone from IV. Watch for parallels when moving on to V."
+    },
+    {
+      "id": "SEV-PREP-II7",
+      "quality": "good",
+      "from": ["I", "I6"],
+      "to": ["ii7", "ii65"],
+      "feedback": "Tonic to ii7 (or ii6/5). The seventh enters as a common tone or a stepwise descent, preparing the dissonance."
+    },
+    {
+      "id": "SEV-PREP-V7",
+      "quality": "good",
+      "from": ["IV", "ii", "ii6"],
+      "to": ["V7"],
+      "feedback": "Approaching V7 from a predominant. The 4 held over becomes the seventh of V7 — the strongest possible preparation for the dominant."
+    },
+    {
+      "id": "SEV-PREP-V65",
+      "quality": "good",
+      "from": ["I", "I6"],
+      "to": ["V65"],
+      "feedback": "Tonic to V6/5. The seventh enters by common tone or stepwise motion, preparing the leading-tone bass."
+    },
+
+    {
+      "id": "SYNTAX-V6-TO-OTHER",
+      "quality": "discouraged",
+      "from": ["V6"],
+      "to": ["IV", "iv", "ii", "ii6", "ii7"],
+      "feedback": "V6 to a predominant. The bass of V6 (the leading tone) must continue by step to I or I6. Going backward leaves the leading tone unresolved."
+    },
+    {
+      "id": "SYNTAX-V65-TO-OTHER",
+      "quality": "discouraged",
+      "from": ["V65"],
+      "to": ["IV", "ii", "ii6", "ii7"],
+      "feedback": "V6/5 to a predominant. The bass must ascend to 1 and the seventh must resolve down. Any other target leaves both tendency tones unsatisfied."
+    },
+    {
+      "id": "SYNTAX-V42-TO-OTHER",
+      "quality": "discouraged",
+      "from": ["V42"],
+      "to": ["IV", "ii", "V", "V7"],
+      "feedback": "V4/2 to anything but I6. The bass is the chordal seventh and must fall by step. Only I6 continues the resolution correctly."
+    },
+    {
+      "id": "SYNTAX-V43-TO-OTHER",
+      "quality": "discouraged",
+      "from": ["V43"],
+      "to": ["IV", "ii", "ii6", "vi"],
+      "feedback": "V4/3 to a non-tonic chord. The seventh should resolve down to 3 of I, or ascend to 5 in parallel 10ths into I6."
+    },
+    {
+      "id": "SYNTAX-VII6-TO-OTHER",
+      "quality": "discouraged",
+      "from": ["vii\u00B06"],
+      "to": ["IV", "ii", "ii6", "vi", "VI"],
+      "feedback": "vii\u00B06 to a non-tonic chord. The leading tone in the bass wants to rise to 1. Going elsewhere inverts the natural resolution."
+    }
+
+  ]
+}

@@ -1,0 +1,244 @@
+{
+  "_readme": {
+    "pass": 7,
+    "covers": "Modal progressions in minor keys (the natural-minor VII/VI complex, Dorian v and iv), modal-mixture extensions in major (bVII, bIII, bVI as idiomatic colours), chromatic-modal transitions (diminished sevenths as passing and neighbour chords), common-tone diminished sevenths, and applied chords targeting modal degrees. This pass exists because passes 1-6 enumerated common-practice diatonic and chromatic progressions but never covered the modal layer of the vocabulary, which appears constantly in chorales, folk-influenced writing, and nineteenth-century repertoire.",
+    "structure": "Each rule has: id, quality, from, to, feedback.",
+    "matching": {
+      "from": "Root numerals for the previous chord.",
+      "to": "Root numerals for the current chord.",
+      "wildcard": "'*' matches any numeral.",
+      "bare_root": "A bare numeral like 'VII' matches any inversion.",
+      "figured": "A numeral with a figure like 'VII7' matches only that inversion.",
+      "applied": "Applied chords are written with a slash, e.g. 'V/bVII'.",
+      "modal_notation": "In minor keys, VII (uppercase) is the natural subtonic on the lowered seventh degree; III is the natural mediant; VI is the natural submediant. v (lowercase) is the Dorian/natural-minor dominant."
+    },
+    "how_to_add_a_rule": [
+      "1. Copy a rule block between { and }.",
+      "2. Give it a new unique id.",
+      "3. Set from and to as above.",
+      "4. Pick a quality: excellent, good, fair, discouraged, bad.",
+      "5. Write feedback in plain English.",
+      "6. Save. No trailing comma after the last rule."
+    ]
+  },
+
+  "rules": [
+
+    {
+      "id": "MODAL-VII-I",
+      "quality": "good",
+      "from": ["VII", "VII6", "VII64"],
+      "to": ["I", "i", "I6", "i6"],
+      "feedback": "Subtonic to tonic — a modal cadence. The lowered seventh approaches the tonic by whole step rather than by the leading-tone half step. Idiomatic in modal, folk, and Renaissance-derived writing; in tonal common-practice it produces a close that is settled but not fully functional."
+    },
+    {
+      "id": "MODAL-VII7-I",
+      "quality": "good",
+      "from": ["VII7", "VII65", "VII43", "VII42"],
+      "to": ["I", "i", "I6", "i6"],
+      "feedback": "Subtonic seventh resolving to tonic. The chord looks like a dominant seventh but lacks the leading tone, so the resolution is modal rather than functional. Common in Baroque sequences and a hallmark of the descending-fifths chain."
+    },
+    {
+      "id": "MODAL-VII-VI",
+      "quality": "good",
+      "from": ["VII", "VII6", "VII7", "VII65"],
+      "to": ["VI", "VI6"],
+      "feedback": "Subtonic to submediant — the first step of the natural-minor descending tetrachord in the bass. A modal descent that avoids the raised leading tone, characteristic of Aeolian and Dorian cadential approaches."
+    },
+    {
+      "id": "MODAL-VI-VII",
+      "quality": "fair",
+      "from": ["VI", "VI6"],
+      "to": ["VII", "VII6", "VII7", "VII65"],
+      "feedback": "Submediant to subtonic. Approaches a modal cadence by ascending step. The VII that follows can resolve to i (modal cadence) or continue descending to VI again (a back-and-forth neighbour motion)."
+    },
+    {
+      "id": "MODAL-VII-III",
+      "quality": "fair",
+      "from": ["VII", "VII6", "VII7", "VII65"],
+      "to": ["III", "III6", "III64"],
+      "feedback": "Subtonic to mediant. A modal ascent to the relative major, idiomatic in natural minor and Dorian. The motion is stepwise in the bass and prepares a cadence in III."
+    },
+    {
+      "id": "MODAL-III-VII",
+      "quality": "fair",
+      "from": ["III", "III6"],
+      "to": ["VII", "VII6", "VII7", "VII65"],
+      "feedback": "Mediant to subtonic — bIII to bVII in the home mode. A modal step-down, idiomatic in modal and folk-influenced writing; less common in functional common-practice harmony where the mediant typically returns to VI or proceeds to IV."
+    },
+    {
+      "id": "MODAL-v-i",
+      "quality": "good",
+      "from": ["v", "v7", "v6"],
+      "to": ["i", "i6"],
+      "feedback": "Minor (modal) dominant to tonic — a Dorian or Aeolian cadence. Without the raised leading tone, the resolution is softer than a harmonic-minor V–i; the modal colour is deliberate."
+    },
+    {
+      "id": "MODAL-i-v",
+      "quality": "fair",
+      "from": ["i", "i6"],
+      "to": ["v", "v7", "v6"],
+      "feedback": "Tonic to minor (modal) dominant. The ear hears the dominant degree without the leading-tone pull of a major V; a Dorian-flavoured motion, common in modal and folk-influenced writing."
+    },
+    {
+      "id": "MODAL-v-iv",
+      "quality": "fair",
+      "from": ["v", "v7", "v6"],
+      "to": ["iv", "iv6"],
+      "feedback": "Minor dominant to minor subdominant — a Dorian motion. The chord moves against the expected functional flow but is idiomatic in modal contexts where the dominant degree lacks its tonic-dominant pull."
+    },
+    {
+      "id": "MODAL-iv-v",
+      "quality": "fair",
+      "from": ["iv", "iv6"],
+      "to": ["v", "v7", "v6"],
+      "feedback": "Minor subdominant to minor (modal) dominant. Dorian-flavoured stepwise motion into the modal dominant; frequent in nineteenth-century modal-inflected passages."
+    },
+    {
+      "id": "MODAL-iv-VII",
+      "quality": "good",
+      "from": ["iv", "iv6"],
+      "to": ["VII", "VII6", "VII7", "VII65"],
+      "feedback": "Minor subdominant to subtonic. The motion prepares a modal cadence on i (or I) using the lowered seventh degree. Very common in Bach and in folk-influenced writing."
+    },
+    {
+      "id": "MODAL-VII-iv",
+      "quality": "fair",
+      "from": ["VII", "VII6", "VII7", "VII65"],
+      "to": ["iv", "iv6"],
+      "feedback": "Subtonic to minor subdominant. Backward motion within the modal vocabulary; idiomatic in the middle of a phrase but rarely at cadences."
+    },
+
+    {
+      "id": "MODAL-bVII-I",
+      "quality": "good",
+      "from": ["bVII", "bVII6", "VII", "VII6"],
+      "to": ["I", "I6"],
+      "feedback": "Flat-VII to tonic in a major key. A mixture borrowing from the parallel minor; the modal close is warm and settled rather than driven. Common in nineteenth-century and popular idioms."
+    },
+    {
+      "id": "MODAL-bIII-IV",
+      "quality": "good",
+      "from": ["bIII", "bIII6", "III", "III6"],
+      "to": ["IV", "IV6", "iv", "iv6"],
+      "feedback": "Flat-III to subdominant. Mixture colour from the parallel minor; the bass ascends by whole step from the borrowed mediant into the subdominant area, a hallmark of extended mixture in major keys."
+    },
+    {
+      "id": "MODAL-bVI-V",
+      "quality": "good",
+      "from": ["bVI", "bVI6", "VI", "VI6"],
+      "to": ["V", "V7", "V6", "V65"],
+      "feedback": "Flat-VI to dominant. The lowered sixth degree descends by step to 5 while the bass ascends, producing a strong chromatic approach to the cadence. A standard mixture cadential preparation."
+    },
+    {
+      "id": "MODAL-bVI-bVII",
+      "quality": "fair",
+      "from": ["bVI", "bVI6", "VI", "VI6"],
+      "to": ["bVII", "bVII6", "VII", "VII6"],
+      "feedback": "Flat-VI to flat-VII. A chromatic-modal step-up preparing the return to I, characteristically used in the extended plagal close of the nineteenth-century repertoire."
+    },
+    {
+      "id": "MODAL-bVII-bVI",
+      "quality": "fair",
+      "from": ["bVII", "bVII6", "VII", "VII6"],
+      "to": ["bVI", "bVI6", "VI", "VI6"],
+      "feedback": "Flat-VII to flat-VI. The reverse of the bVI–bVII pair; less common but idiomatic in chromatic descents to the subdominant."
+    },
+
+    {
+      "id": "CHROM-VI-LT7-VII",
+      "quality": "good",
+      "from": ["VI", "VI6", "bVI", "bVI6"],
+      "to": ["vii\u00B07/VII", "vii\u00F87/VII", "vii\u00B06/VII"],
+      "feedback": "Submediant to applied leading-tone seventh of the subtonic. The diminished seventh acts as a chromatic passing chord between VI and VII, intensifying the modal cadence."
+    },
+    {
+      "id": "CHROM-LT7-VII",
+      "quality": "excellent",
+      "from": ["vii\u00B07/VII", "vii\u00F87/VII", "vii\u00B06/VII"],
+      "to": ["VII", "VII6", "VII7"],
+      "feedback": "Applied leading-tone seventh resolving to the subtonic. The applied leading tone rises by half step to the root of VII while the chordal seventh falls, producing a striking chromatic intensification of the modal cadence."
+    },
+    {
+      "id": "CHROM-iv-LT7-V",
+      "quality": "good",
+      "from": ["iv", "iv6"],
+      "to": ["vii\u00B07/V", "vii\u00B06/V", "vii\u00F87/V"],
+      "feedback": "Minor subdominant to applied leading-tone seventh of V. A chromatic pre-cadential move that combines mixture with an applied diminished seventh; common in nineteenth-century cadential preparation."
+    },
+    {
+      "id": "CHROM-LT7-V",
+      "quality": "excellent",
+      "from": ["vii\u00B07/V", "vii\u00B06/V", "vii\u00B043/V", "vii\u00F87/V"],
+      "to": ["V", "V7"],
+      "feedback": "Applied leading-tone seventh resolving to V. All four voices move by half step or common tone into the dominant; a standard chromatic preparation for the cadence."
+    },
+    {
+      "id": "CHROM-i-LT7",
+      "quality": "good",
+      "from": ["i", "i6", "I", "I6"],
+      "to": ["vii\u00B07", "vii\u00B065", "vii\u00B043", "vii\u00B042"],
+      "feedback": "Tonic to the diatonic leading-tone seventh. Approaching a diminished seventh by step or common tone; the chord acts as a chromatic intensification of the dominant that follows."
+    },
+    {
+      "id": "CHROM-LT7-i",
+      "quality": "excellent",
+      "from": ["vii\u00B07", "vii\u00B065", "vii\u00B043", "vii\u00B042"],
+      "to": ["i", "i6"],
+      "feedback": "Diatonic leading-tone seventh resolving to tonic in minor. The leading tone rises, the chordal seventh (the lowered sixth degree) falls, and the chord resolves into the tonic triad. A defining gesture of the minor mode."
+    },
+
+    {
+      "id": "CT-DIM7-I-I6",
+      "quality": "fair",
+      "from": ["I", "I6", "i", "i6"],
+      "to": ["#iv\u00B07", "\u266Fiv\u00B07", "iv\u00B07"],
+      "feedback": "Common-tone diminished seventh built on the raised fourth degree, approached from the tonic. The chord shares a common tone with the tonic triad and functions as a chromatic decoration before returning to I or I6."
+    },
+    {
+      "id": "CT-DIM7-RETURN",
+      "quality": "fair",
+      "from": ["#iv\u00B07", "iv\u00B07"],
+      "to": ["I", "I6", "i", "i6"],
+      "feedback": "Common-tone diminished seventh returning to the tonic. The chord is a chromatic neighbour that shares one common tone with the preceding tonic triad; its other voices move chromatically and resolve back into the tonic."
+    },
+
+    {
+      "id": "APP-V-bVII",
+      "quality": "fair",
+      "from": ["V/bVII", "V7/bVII"],
+      "to": ["bVII", "bVII6", "VII", "VII6"],
+      "feedback": "Applied dominant of the flat subtonic. In a major key this tonicizes the borrowed subtonic; the resolution is idiomatic in mixture-flavoured passages and in popular-influenced writing."
+    },
+    {
+      "id": "APP-V-bIII",
+      "quality": "fair",
+      "from": ["V/bIII", "V7/bIII"],
+      "to": ["bIII", "bIII6", "III", "III6"],
+      "feedback": "Applied dominant of the flat mediant. Tonicizes the borrowed mediant; common in nineteenth-century chromatic passages preparing the shift to the parallel minor's relative major."
+    },
+    {
+      "id": "APP-V-bVI",
+      "quality": "fair",
+      "from": ["V/bVI", "V7/bVI"],
+      "to": ["bVI", "bVI6", "VI", "VI6"],
+      "feedback": "Applied dominant of the flat submediant. Tonicizes the borrowed submediant; a standard chromatic preparation for the mixture-flavoured cadential approach bVI–V–i (or bVI–V–I)."
+    },
+
+    {
+      "id": "FOLK-VII-I",
+      "quality": "good",
+      "from": ["VII", "bVII"],
+      "to": ["I", "I6"],
+      "feedback": "Flat-VII to I — a modal close borrowed from the Mixolydian mode. Frequent in folk-influenced writing and in the blues idiom; produces a warm, settled cadence without the leading-tone drive of a functional V–I."
+    },
+    {
+      "id": "FOLK-i-VII-VI-V",
+      "quality": "good",
+      "from": ["VII", "VII6"],
+      "to": ["VI", "VI6"],
+      "feedback": "Subtonic to submediant — the second step of the natural-minor descending tetrachord. If the bass then continues to V and to iv, the entire descent outlines the modal plagal close i–VII–VI–V."
+    }
+
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "_readme": {
+    "pass": 4,
+    "covers": "Units 16-21. Missing links in the descending-5th chain progression, plus rated transitions for modal mixture (minor v, borrowed iv, borrowed bVI).",
+    "structure": "Each rule has: id, quality, from, to, feedback.",
+    "matching": {
+      "from": "Root numerals for the previous chord. Empty list applies only to the first chord.",
+      "to": "Root numerals for the current chord.",
+      "wildcard": "'*' matches any numeral.",
+      "bare_root": "A bare numeral like 'V' matches every inversion of V.",
+      "figured": "A numeral with a figure like 'V65' matches only that inversion."
+    },
+    "how_to_add_a_rule": [
+      "1. Copy a rule block between { and }.",
+      "2. Give it a new unique id.",
+      "3. Set from and to as above.",
+      "4. Pick a quality: excellent, good, fair, discouraged, bad.",
+      "5. Write feedback in plain English.",
+      "6. Save. No trailing comma after the last rule."
+    ]
+  },
+
+  "rules": [
+
+    {
+      "id": "CHAIN-IV-VII",
+      "quality": "good",
+      "from": ["IV", "iv"],
+      "to": ["vii", "vii\u00B0"],
+      "feedback": "IV to vii\u00B0 — continues the descending-5th chain (I-IV-vii\u00B0-iii-vi-ii-V-I). The diatonic tritone between the roots is a hallmark of the chain, not an error."
+    },
+    {
+      "id": "CHAIN-VII-III",
+      "quality": "good",
+      "from": ["vii", "vii\u00B0", "vii\u00B06"],
+      "to": ["iii", "III"],
+      "feedback": "vii\u00B0 to iii — a further step in the descending-5th chain. The leading tone rises to the root of iii, which continues the motion to vi and ii."
+    },
+    {
+      "id": "CHAIN-III-II",
+      "quality": "discouraged",
+      "from": ["iii", "III"],
+      "to": ["ii", "ii7"],
+      "feedback": "iii to ii — ascending step into a weak chord. Both chords are weak in isolation and the direction is unclear; keep this pair only inside a sequence where the pattern supplies the momentum."
+    },
+    {
+      "id": "CHAIN-VI-III-ASC",
+      "quality": "discouraged",
+      "from": ["vi", "VI"],
+      "to": ["iii", "III"],
+      "feedback": "vi to iii — root motion by ascending 5th is a retrogression. The natural direction is iii to vi, not the reverse."
+    },
+
+    {
+      "id": "MIX-V-MINOR-IN-MAJOR",
+      "quality": "fair",
+      "from": ["*"],
+      "to": ["v"],
+      "feedback": "Minor v in a major key — a modal colouring borrowed from the parallel minor. Idiomatic in folk-influenced and popular styles, uncommon in strict common-practice writing."
+    },
+    {
+      "id": "MIX-BORROWED-IV-I",
+      "quality": "fair",
+      "from": ["iv"],
+      "to": ["I", "i"],
+      "feedback": "Minor subdominant to tonic — a plagal motion coloured by the borrowed iv. Common at the close of a phrase in major and a hallmark of mixture."
+    },
+    {
+      "id": "MIX-BORROWED-BVI-I",
+      "quality": "fair",
+      "from": ["\u266DVI", "VI"],
+      "to": ["I", "i"],
+      "feedback": "Borrowed flat-VI to tonic — a chromatic plagal motion. Rare in strict diatonic writing, frequent in the nineteenth-century repertoire."
+    }
+
+  ]
+}

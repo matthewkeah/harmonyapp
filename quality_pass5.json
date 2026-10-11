@@ -1,0 +1,174 @@
+{
+  "_readme": {
+    "pass": 5,
+    "covers": "Units 22-26. Rated progressions for leading-tone seventh chords, mixture (borrowed chords in major), and applied dominants / applied leading-tone chords.",
+    "structure": "Each rule has: id, quality, from, to, feedback.",
+    "matching": {
+      "from": "Root numerals for the previous chord. Empty list applies only to the first chord.",
+      "to": "Root numerals for the current chord.",
+      "wildcard": "'*' matches any numeral.",
+      "bare_root": "A bare numeral like 'V' matches every inversion of V.",
+      "figured": "A numeral with a figure like 'V65' matches only that inversion.",
+      "applied": "Applied chords are written with a slash, e.g. 'V/V', 'V7/II', 'vii\u00B07/V'.",
+      "case": "In minor keys the analyzer emits uppercase VII for the natural (modal) subtonic and lowercase vii for the raised (harmonic-minor) leading tone. Both forms are listed where a rule is intended to cover the seventh degree in either spelling."
+    },
+    "how_to_add_a_rule": [
+      "1. Copy a rule block between { and }.",
+      "2. Give it a new unique id.",
+      "3. Set from and to as above.",
+      "4. Pick a quality: excellent, good, fair, discouraged, bad.",
+      "5. Write feedback in plain English.",
+      "6. Save. No trailing comma after the last rule."
+    ]
+  },
+
+  "rules": [
+
+    {
+      "id": "APP-V-TO-V-HOME",
+      "quality": "excellent",
+      "from": ["V/V", "V7/V"],
+      "to": ["V", "V7"],
+      "feedback": "Applied dominant of V resolving to V. The strongest way to intensify a cadential approach without leaving the home key. The applied leading tone rises by half step to the dominant's root."
+    },
+    {
+      "id": "APP-V-TO-II-HOME",
+      "quality": "excellent",
+      "from": ["V/II", "V7/II"],
+      "to": ["ii", "ii6", "ii65", "ii43", "ii42", "ii7"],
+      "feedback": "Applied dominant of ii resolving to supertonic harmony. A characteristic opening gesture in the nineteenth-century repertoire."
+    },
+    {
+      "id": "APP-V-TO-VI-HOME",
+      "quality": "good",
+      "from": ["V/VI", "V7/VI"],
+      "to": ["vi", "VI", "vi6", "VI6"],
+      "feedback": "Applied dominant of vi resolving to the submediant. Prepares a deceptive-sounding arrival or a brief tonicization of the relative minor."
+    },
+    {
+      "id": "APP-V-TO-IV-HOME",
+      "quality": "good",
+      "from": ["V/IV", "V7/IV"],
+      "to": ["IV", "IV6", "IV7", "IV65"],
+      "feedback": "Applied dominant of IV resolving to subdominant harmony. Common in major; in minor this tonicizes the major subdominant and mixes modes."
+    },
+    {
+      "id": "APP-V-TO-III-HOME",
+      "quality": "fair",
+      "from": ["V/III", "V7/III"],
+      "to": ["iii", "III"],
+      "feedback": "Applied dominant of iii resolving to the mediant. iii is the weakest diatonic goal, so the tonicization rarely stands on its own."
+    },
+    {
+      "id": "APP-V-TO-VII-HOME",
+      "quality": "fair",
+      "from": ["V/VII", "V7/VII"],
+      "to": ["vii", "vii\u00B0", "vii\u00B06", "VII", "VII6", "VII64"],
+      "feedback": "Applied dominant of the seventh degree. In minor keys the natural subtonic is a major triad (VII), so this is a modal cadence rather than a functional one; in major keys the target is the diminished leading-tone triad and the resolution is unusual."
+    },
+
+    {
+      "id": "APP-DOM-CHAIN",
+      "quality": "good",
+      "from": ["V/V", "V7/V", "V/II", "V7/II", "V/IV", "V7/IV", "V/VI", "V7/VI"],
+      "to": ["V/V", "V7/V", "V/II", "V7/II", "V/IV", "V7/IV", "V/VI", "V7/VI"],
+      "feedback": "Two applied dominants in succession. Characteristic of the extended tonicizations in Brahms and Wagner, but unusual in strict common-practice writing."
+    },
+
+    {
+      "id": "APP-VII7-TO-TARGET",
+      "quality": "excellent",
+      "from": ["vii\u00B07/V", "vii\u00B06/V", "vii\u00F87/V"],
+      "to": ["V", "V7"],
+      "feedback": "Diminished seventh chord on the applied leading tone resolving to V. The four voices each move by half step (or common tone) into the dominant, a striking chromatic effect."
+    },
+    {
+      "id": "APP-VII-TO-OTHER",
+      "quality": "fair",
+      "from": ["vii\u00B07/II", "vii\u00B07/IV", "vii\u00B07/VI", "vii\u00B06/II"],
+      "to": ["ii", "IV", "vi", "ii6", "IV6"],
+      "feedback": "Applied diminished seventh resolving to its target. Strong chromatic intensification, especially common at approach to a new key area."
+    },
+
+    {
+      "id": "LT7-TO-I",
+      "quality": "excellent",
+      "from": ["vii\u00B07", "vii\u00B065", "vii\u00B043", "vii\u00B042"],
+      "to": ["I", "i"],
+      "feedback": "Leading-tone seventh chord resolving to tonic. The leading tone rises to 1, the chordal seventh falls by step, and the remaining voices descend into the tonic triad. A defining chromatic gesture in minor and mixture."
+    },
+    {
+      "id": "LT7-TO-V",
+      "quality": "discouraged",
+      "from": ["vii\u00B07", "vii\u00B065"],
+      "to": ["V", "V7"],
+      "feedback": "Leading-tone seventh to dominant. The seventh of vii°7 (b6) should resolve down to 5, but V contains no 5-above-5 that can absorb the tendency cleanly — the direction feels stalled."
+    },
+    {
+      "id": "HALFDIM7-TO-I",
+      "quality": "excellent",
+      "from": ["vii\u00F87", "vii\u00F865", "vii\u00F843", "vii\u00F842"],
+      "to": ["I", "i"],
+      "feedback": "Half-diminished seventh resolving to tonic. Idiomatic in major, where the seventh (6) resolves down to 5 and the leading tone rises to 1. A characteristic bright chromatic colour."
+    },
+
+    {
+      "id": "MIX-iv-TO-V",
+      "quality": "excellent",
+      "from": ["iv"],
+      "to": ["V", "V7"],
+      "feedback": "Borrowed minor subdominant to dominant. b6 descends by step to 5, and the resulting chromatic tension drives into the cadence. A hallmark of mixture."
+    },
+    {
+      "id": "MIX-iv-TO-I",
+      "quality": "good",
+      "from": ["iv"],
+      "to": ["I", "i"],
+      "feedback": "Borrowed minor subdominant to tonic — a plagal motion coloured by mixture. Common at the close of a phrase in major."
+    },
+    {
+      "id": "MIX-bVI-TO-V",
+      "quality": "good",
+      "from": ["\u266DVI"],
+      "to": ["V", "V7"],
+      "feedback": "Borrowed flat-VI to dominant. b6 descends by step to 5 while the bass ascends, producing a strong chromatic approach to the cadence."
+    },
+    {
+      "id": "MIX-bVI-TO-iv",
+      "quality": "good",
+      "from": ["\u266DVI"],
+      "to": ["iv"],
+      "feedback": "Flat-VI to minor subdominant. Both chords share the borrowed b6; the motion prolongs the plagal flavour of the parallel mode."
+    },
+    {
+      "id": "MIX-bIII-TO-IV",
+      "quality": "fair",
+      "from": ["\u266DIII"],
+      "to": ["IV", "iv"],
+      "feedback": "Borrowed flat-III to subdominant. Common in nineteenth-century repertoire but rare in strict common-practice writing."
+    },
+    {
+      "id": "MIX-bVII-TO-I",
+      "quality": "fair",
+      "from": ["\u266DVII"],
+      "to": ["I", "i"],
+      "feedback": "Flat-VII to tonic. A modal borrowing that evokes popular and folk idioms. Rare in the classical style."
+    },
+    {
+      "id": "MIX-bVII-TO-V",
+      "quality": "fair",
+      "from": ["\u266DVII"],
+      "to": ["V", "V7"],
+      "feedback": "Flat-VII to dominant. Works as a chromatic approach to the cadence. In popular styles this pair is extremely common; in classical writing it is unusual."
+    },
+
+    {
+      "id": "MIXTURE-TO-VII7",
+      "quality": "good",
+      "from": ["iv", "\u266DVI", "\u266DIII"],
+      "to": ["vii\u00B07", "vii\u00B065", "vii\u00B043"],
+      "feedback": "Borrowed subdominant-family chord to a fully diminished seventh on the leading tone. Common chromatic preparation for a tonic arrival."
+    }
+
+  ]
+}

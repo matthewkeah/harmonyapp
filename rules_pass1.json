@@ -1,0 +1,297 @@
+{
+  "_readme": {
+    "pass": 1,
+    "covers": "Units 1-5. Ranges, spacing, voice integrity, parallels, direct intervals, doubling (leading tone, triad positions, and seventh), triad completeness, and leaps.",
+    "structure": "Every rule has: rule_id, tier, category, weight, error_message, check.",
+    "handlers_registered_in": "sheria_pass1.py",
+    "note_on_doubling": "Root doubling in a root-position triad is a tendency, not a rule (Aldwell & Schachter, Unit 5 §3). Only the leading tone and the chordal seventh must never be doubled. Doubling the fifth, or doubling the third when voice leading requires it, is permitted. The rules here flag only the absolute prohibitions and, for the third, triple doubling.",
+    "how_to_add_a_rule": [
+      "1. Copy a rule block between { and }.",
+      "2. Give it a new unique rule_id.",
+      "3. Choose a check.type that Pass 1 or an earlier pass registered.",
+      "4. Adjust the numbers inside check.",
+      "5. Rewrite error_message in plain English.",
+      "6. Save. No trailing comma after the last rule."
+    ]
+  },
+
+  "rules": [
+
+    {
+      "rule_id": "RANGE-S",
+      "tier": "PHYSICAL",
+      "category": "Ranges",
+      "weight": 8,
+      "error_message": "Soprano is outside the standard range (C4 to G5)",
+      "check": { "type": "voice_range", "voice": "soprano", "low": 60, "high": 79 }
+    },
+    {
+      "rule_id": "RANGE-A",
+      "tier": "PHYSICAL",
+      "category": "Ranges",
+      "weight": 8,
+      "error_message": "Alto is outside the standard range (F3 to D5)",
+      "check": { "type": "voice_range", "voice": "alto", "low": 53, "high": 74 }
+    },
+    {
+      "rule_id": "RANGE-T",
+      "tier": "PHYSICAL",
+      "category": "Ranges",
+      "weight": 8,
+      "error_message": "Tenor is outside the standard range (C3 to G4)",
+      "check": { "type": "voice_range", "voice": "tenor", "low": 48, "high": 67 }
+    },
+    {
+      "rule_id": "RANGE-B",
+      "tier": "PHYSICAL",
+      "category": "Ranges",
+      "weight": 8,
+      "error_message": "Bass is outside the standard range (E2 to C4)",
+      "check": { "type": "voice_range", "voice": "bass", "low": 40, "high": 60 }
+    },
+
+    {
+      "rule_id": "SPACING-SA",
+      "tier": "PHYSICAL",
+      "category": "Spacing",
+      "weight": 5,
+      "error_message": "Soprano and Alto are more than an octave apart",
+      "check": {
+        "type": "voice_pair_interval",
+        "voices": ["soprano", "alto"],
+        "max_semitones": 12
+      }
+    },
+    {
+      "rule_id": "SPACING-AT",
+      "tier": "PHYSICAL",
+      "category": "Spacing",
+      "weight": 5,
+      "error_message": "Alto and Tenor are more than an octave apart",
+      "check": {
+        "type": "voice_pair_interval",
+        "voices": ["alto", "tenor"],
+        "max_semitones": 12
+      }
+    },
+    {
+      "rule_id": "SPACING-TB",
+      "tier": "PHYSICAL",
+      "category": "Spacing",
+      "weight": 4,
+      "error_message": "Tenor and Bass are more than two octaves apart",
+      "check": {
+        "type": "voice_pair_interval",
+        "voices": ["tenor", "bass"],
+        "max_semitones": 24
+      }
+    },
+    {
+      "rule_id": "SPACING-SB",
+      "tier": "PHYSICAL",
+      "category": "Spacing",
+      "weight": 4,
+      "error_message": "Soprano and Bass span more than two octaves",
+      "check": {
+        "type": "voice_pair_interval",
+        "voices": ["soprano", "bass"],
+        "max_semitones": 24
+      }
+    },
+    {
+      "rule_id": "SPACING-ST",
+      "tier": "PHYSICAL",
+      "category": "Spacing",
+      "weight": 4,
+      "error_message": "Soprano and Tenor are more than two octaves apart",
+      "check": {
+        "type": "voice_pair_interval",
+        "voices": ["soprano", "tenor"],
+        "max_semitones": 24
+      }
+    },
+
+    {
+      "rule_id": "CROSS-001",
+      "tier": "PHYSICAL",
+      "category": "Voice Integrity",
+      "weight": 10,
+      "error_message": "Voices cross",
+      "check": { "type": "voice_crossing" }
+    },
+    {
+      "rule_id": "OVERLAP-001",
+      "tier": "PHYSICAL",
+      "category": "Voice Integrity",
+      "weight": 8,
+      "error_message": "Voice overlaps with the previous chord",
+      "check": { "type": "voice_overlap" }
+    },
+
+    {
+      "rule_id": "PARALLEL-P5",
+      "tier": "VOICE_LEADING",
+      "category": "Parallel Intervals",
+      "weight": 10,
+      "error_message": "Parallel fifths between consecutive chords",
+      "check": { "type": "parallel_perfects", "intervals": ["P5"] }
+    },
+    {
+      "rule_id": "PARALLEL-P8",
+      "tier": "VOICE_LEADING",
+      "category": "Parallel Intervals",
+      "weight": 10,
+      "error_message": "Parallel octaves or unisons between consecutive chords",
+      "check": { "type": "parallel_perfects", "intervals": ["P8", "PU"] }
+    },
+
+    {
+      "rule_id": "DIRECT-P5",
+      "tier": "VOICE_LEADING",
+      "category": "Direct Intervals",
+      "weight": 6,
+      "error_message": "Direct fifths in the outer voices",
+      "check": { "type": "direct_perfects", "intervals": ["P5"] }
+    },
+    {
+      "rule_id": "DIRECT-P8",
+      "tier": "VOICE_LEADING",
+      "category": "Direct Intervals",
+      "weight": 8,
+      "error_message": "Direct octaves in the outer voices",
+      "check": { "type": "direct_perfects", "intervals": ["P8"] }
+    },
+
+    {
+      "rule_id": "DOUBLING-LT",
+      "tier": "PHYSICAL",
+      "category": "Doubling",
+      "weight": 8,
+      "error_message": "Leading tone is doubled",
+      "check": { "type": "doubling_leading_tone", "max_count": 1 }
+    },
+    {
+      "rule_id": "DOUBLING-SEVENTH",
+      "tier": "PHYSICAL",
+      "category": "Doubling",
+      "weight": 10,
+      "error_message": "The seventh of a seventh chord is doubled",
+      "check": { "type": "doubling_seventh" }
+    },
+    {
+      "rule_id": "TRIAD-THIRD-PRESENT",
+      "tier": "PHYSICAL",
+      "category": "Chord Construction",
+      "weight": 8,
+      "error_message": "The third of a triad is missing — the chord's major or minor quality is destroyed",
+      "check": { "type": "triad_completeness" }
+    },
+
+    {
+      "rule_id": "DOUBLING-MAJ3",
+      "tier": "CONTEXTUAL",
+      "category": "Chord Tone Doubling - Root Position",
+      "weight": 3,
+      "error_message": "The third of a root-position major triad is tripled — doubling the third is acceptable when voice leading requires it, but tripling it is excessive",
+      "check": {
+        "type": "doubling_chord_tone",
+        "target": "third",
+        "qualities": ["Major"],
+        "inversion": "root",
+        "max_count": 2
+      }
+    },
+    {
+      "rule_id": "DOUBLING-MIN3",
+      "tier": "CONTEXTUAL",
+      "category": "Chord Tone Doubling - Root Position",
+      "weight": 2,
+      "error_message": "The third of a root-position minor triad is tripled — doubling the third is acceptable when voice leading requires it, but tripling it is excessive",
+      "check": {
+        "type": "doubling_chord_tone",
+        "target": "third",
+        "qualities": ["Minor"],
+        "inversion": "root",
+        "max_count": 2
+      }
+    },
+    {
+      "rule_id": "DOUBLING-DIM3",
+      "tier": "CONTEXTUAL",
+      "category": "Chord Tone Doubling - Root Position",
+      "weight": 5,
+      "error_message": "The third of a diminished triad should be doubled",
+      "check": {
+        "type": "doubling_chord_tone",
+        "target": "third",
+        "qualities": ["Diminished"],
+        "inversion": "root",
+        "min_count": 2
+      }
+    },
+
+    {
+      "rule_id": "INV2-DOUBLE-BASS",
+      "tier": "CONTEXTUAL",
+      "category": "Chord Tone Doubling - Second Inversion",
+      "weight": 4,
+      "error_message": "In a second-inversion triad, the bass should be doubled",
+      "check": {
+        "type": "doubling_chord_tone",
+        "target": "fifth",
+        "qualities": ["Major", "Minor"],
+        "inversion": "64",
+        "min_count": 2
+      }
+    },
+
+    {
+      "rule_id": "LEAP-SOPRANO",
+      "tier": "VOICE_LEADING",
+      "category": "Melodic Motion",
+      "weight": 6,
+      "error_message": "Soprano leaps by more than a major sixth",
+      "check": {
+        "type": "no_large_leap",
+        "voices": ["soprano"],
+        "max_semitones": 9
+      }
+    },
+    {
+      "rule_id": "LEAP-ALTO",
+      "tier": "VOICE_LEADING",
+      "category": "Melodic Motion",
+      "weight": 5,
+      "error_message": "Alto leaps by more than a major sixth",
+      "check": {
+        "type": "no_large_leap",
+        "voices": ["alto"],
+        "max_semitones": 9
+      }
+    },
+    {
+      "rule_id": "LEAP-TENOR",
+      "tier": "VOICE_LEADING",
+      "category": "Melodic Motion",
+      "weight": 5,
+      "error_message": "Tenor leaps by more than a major sixth",
+      "check": {
+        "type": "no_large_leap",
+        "voices": ["tenor"],
+        "max_semitones": 9
+      }
+    },
+    {
+      "rule_id": "LEAP-BASS-OCTAVE",
+      "tier": "VOICE_LEADING",
+      "category": "Melodic Motion",
+      "weight": 5,
+      "error_message": "Bass leaps by more than an octave",
+      "check": {
+        "type": "no_large_leap",
+        "voices": ["bass"],
+        "max_semitones": 12
+      }
+    }
+  ]
+}

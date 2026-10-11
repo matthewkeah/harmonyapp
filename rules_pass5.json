@@ -1,0 +1,48 @@
+{
+  "_readme": {
+    "pass": 5,
+    "covers": "Units 22-26. Leading-tone seventh chords, mixture, applied dominants and applied leading-tone chords, and diatonic modulation.",
+    "structure": "Every rule has: rule_id, tier, category, weight, error_message, check.",
+    "handlers_registered_in": "sheria_pass5.py",
+    "note_on_scope": "Most seventh-chord resolution and generic leading-tone resolution is already handled by Pass 2's seventh_resolution and leading_tone_resolution. Pass 5 adds the applied cases (V/x, vii°/x) plus mixture resolution.",
+    "how_to_add_a_rule": [
+      "1. Copy a rule block between { and }.",
+      "2. Give it a new unique rule_id.",
+      "3. Choose a check.type that a pass module has registered.",
+      "4. Adjust the numbers inside check.",
+      "5. Rewrite error_message in plain English.",
+      "6. Save. No trailing comma after the last rule."
+    ]
+  },
+
+  "rules": [
+
+    {
+      "rule_id": "P5-APPLIED-LT-RESOLUTION",
+      "tier": "VOICE_LEADING",
+      "category": "Applied Chords",
+      "weight": 8,
+      "error_message": "Applied leading tone did not resolve up to the tonic of the target key — check the soprano and bass",
+      "check": { "type": "applied_leading_tone_resolution" }
+    },
+
+    {
+      "rule_id": "P5-DOUBLED-APPLIED-LT",
+      "tier": "PHYSICAL",
+      "category": "Applied Chords",
+      "weight": 6,
+      "error_message": "Applied leading tone is doubled — the third of V/x or the root of vii°/x must never be doubled",
+      "check": { "type": "doubled_applied_leading_tone" }
+    },
+
+    {
+      "rule_id": "P5-MIXTURE-TONE",
+      "tier": "CHROMATIC",
+      "category": "Mixture",
+      "weight": 6,
+      "error_message": "Borrowed b6 did not resolve down by step to 5 — the chromatic tone of a mixture chord has a strong downward tendency",
+      "check": { "type": "mixture_chromatic_tone_resolution" }
+    }
+
+  ]
+}

@@ -1,0 +1,157 @@
+{
+  "_readme": {
+    "pass": 6,
+    "covers": "Units 28-29. Rated progressions for augmented sixth chords and Neapolitan chords.",
+    "structure": "Each rule has: id, quality, from, to, feedback.",
+    "matching": {
+      "from": "Root numerals for the previous chord. Empty list applies only to the first chord.",
+      "to": "Root numerals for the current chord.",
+      "wildcard": "'*' matches any numeral.",
+      "bare_root": "A bare numeral like 'V' matches every inversion of V.",
+      "figured": "A numeral with a figure like 'V65' matches only that inversion."
+    },
+    "how_to_add_a_rule": [
+      "1. Copy a rule block between { and }.",
+      "2. Give it a new unique id.",
+      "3. Set from and to as above.",
+      "4. Pick a quality: excellent, good, fair, discouraged, bad.",
+      "5. Write feedback in plain English.",
+      "6. Save. No trailing comma after the last rule."
+    ]
+  },
+
+  "rules": [
+
+    {
+      "id": "AUG6-APPROACH-FROM-IV",
+      "quality": "excellent",
+      "from": ["IV", "iv", "IV6"],
+      "to": ["It6", "Fr43", "Ger65"],
+      "feedback": "Approaching the augmented sixth from the subdominant. The 4 of the subdominant becomes the #4 of the augmented sixth, so the chromatic tone is prepared as a common tone."
+    },
+    {
+      "id": "AUG6-APPROACH-FROM-I",
+      "quality": "good",
+      "from": ["I", "I6", "i", "i6"],
+      "to": ["It6", "Fr43", "Ger65"],
+      "feedback": "Approaching the augmented sixth from the tonic. b6 and #4 are introduced chromatically, giving a striking shift of colour."
+    },
+    {
+      "id": "AUG6-APPROACH-OTHER",
+      "quality": "fair",
+      "from": ["ii", "ii6", "ii65", "vi", "VI"],
+      "to": ["It6", "Fr43", "Ger65"],
+      "feedback": "Approaching the augmented sixth from a non-subdominant harmony. Idiomatic in the nineteenth-century repertoire but unusual in strict common-practice writing."
+    },
+
+    {
+      "id": "AUG6-IT-TO-V",
+      "quality": "excellent",
+      "from": ["It6"],
+      "to": ["V", "V7", "V65", "V43"],
+      "feedback": "Italian sixth resolving directly to the dominant. b6 descends to 5 and #4 ascends to 5, producing the characteristic half-step expansion into the octave on 5."
+    },
+    {
+      "id": "AUG6-IT-TO-I64",
+      "quality": "excellent",
+      "from": ["It6"],
+      "to": ["I64"],
+      "feedback": "Italian sixth to the cadential 6/4. The augmented sixth interval expands by half step to the octave on 5. A standard preparation for the cadential resolution."
+    },
+    {
+      "id": "AUG6-FR-TO-V",
+      "quality": "excellent",
+      "from": ["Fr43"],
+      "to": ["V", "V7", "I64"],
+      "feedback": "French sixth resolving to the dominant. Identical outer-voice resolution to the Italian sixth but with an added 2 that becomes the fifth of the dominant."
+    },
+    {
+      "id": "AUG6-GER-TO-V",
+      "quality": "excellent",
+      "from": ["Ger65"],
+      "to": ["V", "I64"],
+      "feedback": "German sixth resolving to a root-position dominant. b6 descends to 5, #4 ascends to 5, and b3 is a common tone with the seventh of V⁷."
+    },
+    {
+      "id": "AUG6-GER-TO-V7-DOUBLED",
+      "quality": "good",
+      "from": ["Ger65"],
+      "to": ["V7"],
+      "feedback": "German sixth to V⁷ with the fifth of V⁷ omitted (root doubled). Necessary when moving directly to a root-position V⁷ without an intervening I⁶⁴, to avoid parallel fifths."
+    },
+    {
+      "id": "AUG6-ANY-TO-OTHER",
+      "quality": "discouraged",
+      "from": ["It6", "Fr43", "Ger65"],
+      "to": ["I", "i", "IV", "iv", "ii", "ii6", "vi", "VI"],
+      "feedback": "Augmented sixth chord resolving away from the dominant. The strong chromatic tendency tones (b6 and #4) pull outward to 5, so any other resolution contradicts the chord's function."
+    },
+
+    {
+      "id": "N-APPROACH-FROM-I",
+      "quality": "excellent",
+      "from": ["I", "I6", "i", "i6"],
+      "to": ["N6", "N"],
+      "feedback": "Approaching the Neapolitan from the tonic. The chromatic b2 enters as a chromatic alteration of the tonic's second degree, introducing a sudden shift of colour."
+    },
+    {
+      "id": "N-APPROACH-FROM-IV",
+      "quality": "good",
+      "from": ["IV", "iv", "IV6", "ii", "ii6", "ii65"],
+      "to": ["N6", "N"],
+      "feedback": "Approaching the Neapolitan from the subdominant family. The b6 of the previous chord can be held as a common tone, softening the chromatic shift."
+    },
+    {
+      "id": "N6-TO-V",
+      "quality": "excellent",
+      "from": ["N6"],
+      "to": ["V", "V7", "V65", "V43", "V42"],
+      "feedback": "Neapolitan to the dominant. The bass ascends 4 to 5, and the chromatically lowered b2 either ascends by half step to 2 (the fifth of V) or is held as an appoggiatura over V."
+    },
+    {
+      "id": "N6-TO-I64",
+      "quality": "excellent",
+      "from": ["N6"],
+      "to": ["I64"],
+      "feedback": "Neapolitan to the cadential 6/4. Bass 4 to 5 continues the standard resolution while the cadential 6/4 prepares the dominant."
+    },
+    {
+      "id": "N6-TO-I",
+      "quality": "discouraged",
+      "from": ["N6"],
+      "to": ["I", "i"],
+      "feedback": "Neapolitan resolving directly to tonic. The strong chromatic tension of b2 wants the dominant as a goal; arriving on the tonic directly feels premature and weakens the cadence."
+    },
+    {
+      "id": "N6-PROLONG-N",
+      "quality": "fair",
+      "from": ["N6", "N"],
+      "to": ["N6", "N", "N64"],
+      "feedback": "Neapolitan prolonged by changing inversion. b2 is held over as a common tone rather than resolved, so the progression is a prolongation of the Neapolitan rather than a cadential approach."
+    },
+
+    {
+      "id": "N-ROOT-TO-V",
+      "quality": "good",
+      "from": ["N"],
+      "to": ["V", "V65", "V43"],
+      "feedback": "Root-position Neapolitan to the dominant. b2 in the bass must resolve up to 2 (fifth of V⁶⁵) or be transferred before the dominant arrives. Less common than N⁶."
+    },
+    {
+      "id": "N-ROOT-TO-I",
+      "quality": "fair",
+      "from": ["N"],
+      "to": ["I", "i", "I6"],
+      "feedback": "Root-position Neapolitan to tonic. b2 resolves down by step to 1, producing a chromatic plagal motion. Idiomatic in Romantic writing but unusual in strict common-practice style."
+    },
+
+    {
+      "id": "N6-TO-AUG6",
+      "quality": "fair",
+      "from": ["N6", "N"],
+      "to": ["It6", "Fr43", "Ger65"],
+      "feedback": "Neapolitan to an augmented sixth chord. A chromatic intensification that combines two distinctive chromatic sonorities. Common in the nineteenth-century repertoire (e.g., N⁶ → Ger⁶₅ → V)."
+    }
+
+  ]
+}

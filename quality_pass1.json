@@ -1,0 +1,606 @@
+{
+  "_readme": {
+    "pass": 1,
+    "covers": "Foundational harmonic syntax from Units 1-5, plus the early expansions (I6, V6, ii6) that appear in Unit 7, plus modal variants of the dominant in minor keys. Every meaningful root-motion pair is listed.",
+    "structure": "Each rule has: id, quality, from, to, feedback.",
+    "matching": {
+      "from": "Root numerals for the previous chord. Empty list means the rule applies only to the very first chord of the passage.",
+      "to": "Root numerals for the current chord.",
+      "wildcard": "'*' matches any numeral.",
+      "bare_root": "A bare numeral like 'V' matches any inversion of V.",
+      "figured": "A rule's 'to' list can include figured chords like 'I6' to match that specific inversion.",
+      "sus": "Suspended chords (Vsus4, V7sus4, ...) are normalised to their base form for matching, so 'V' matches both V and Vsus4.",
+      "case": "Uppercase and lowercase are distinguished. In minor keys the analyzer emits uppercase VII for the natural (modal) subtonic and lowercase vii for the raised (harmonic-minor) leading tone; 'v' is the Dorian minor dominant."
+    },
+    "how_to_add_a_rule": [
+      "1. Copy a rule block between { and }.",
+      "2. Give it a new unique id.",
+      "3. Set from and to as above.",
+      "4. Pick a quality: excellent, good, fair, discouraged, bad.",
+      "5. Write feedback in plain English.",
+      "6. Save. No trailing comma after the last rule."
+    ]
+  },
+
+  "rules": [
+
+    {
+      "id": "START-TONIC",
+      "quality": "excellent",
+      "from": [],
+      "to": ["I", "i"],
+      "feedback": "Beginning on the tonic states the key unambiguously. The listener knows immediately where home is, and the piece can depart from a place of certainty."
+    },
+    {
+      "id": "START-PREDOM",
+      "quality": "fair",
+      "from": [],
+      "to": ["ii", "ii7", "IV", "iv"],
+      "feedback": "A predominant opening leaves the key slightly ambiguous. The music must establish the tonic quickly or the listener will feel adrift."
+    },
+    {
+      "id": "START-DOM",
+      "quality": "fair",
+      "from": [],
+      "to": ["V", "V7"],
+      "feedback": "Opening on the dominant is uncommon in tonal music. The key is not yet established, so move to I soon."
+    },
+    {
+      "id": "START-MED",
+      "quality": "discouraged",
+      "from": [],
+      "to": ["iii", "vi", "VI"],
+      "feedback": "Beginning on a mediant is weak because the key is not yet defined. This opening only works when the harmony is deliberately obscured."
+    },
+    {
+      "id": "START-SEVENTH",
+      "quality": "fair",
+      "from": [],
+      "to": ["vii", "vii\u00B0"],
+      "feedback": "Opening on the leading-tone triad is unstable. First-inversion vii\u00B0 is more idiomatic than root position."
+    },
+    {
+      "id": "START-OTHER",
+      "quality": "fair",
+      "from": [],
+      "to": ["*"],
+      "feedback": "This is not a conventional opening chord. It may work in an unusual style but for a standard exercise it will feel unmoored."
+    },
+
+    {
+      "id": "CORE-I-V",
+      "quality": "excellent",
+      "from": ["I", "i"],
+      "to": ["V", "V7"],
+      "feedback": "Tonic to dominant. This is the fundamental harmonic motion of tonal music — root motion by descending 5th, the strongest pull the system has."
+    },
+    {
+      "id": "CORE-V-I",
+      "quality": "excellent",
+      "from": ["V", "V7"],
+      "to": ["I", "i"],
+      "feedback": "Dominant to tonic. Root motion by 4th (the inversion of a 5th). The arrival at the tonic after a dominant is the fundamental close."
+    },
+    {
+      "id": "CORE-I-IV",
+      "quality": "good",
+      "from": ["I", "i"],
+      "to": ["IV", "iv"],
+      "feedback": "Tonic to subdominant. Another descending-5th relation. The subdominant sits where the tonic can move forward without losing its identity."
+    },
+    {
+      "id": "CORE-IV-I",
+      "quality": "good",
+      "from": ["IV", "iv"],
+      "to": ["I", "i"],
+      "feedback": "Subdominant to tonic. Root motion by 5th, the mirror of V-I but without the leading tone. Softer than an authentic close."
+    },
+    {
+      "id": "CORE-IV-V",
+      "quality": "excellent",
+      "from": ["IV", "iv"],
+      "to": ["V", "V7"],
+      "feedback": "Subdominant to dominant. Root motion by step but with the pull of a 5th underneath. The standard pre-cadential preparation."
+    },
+    {
+      "id": "CORE-II-V",
+      "quality": "excellent",
+      "from": ["ii", "ii7"],
+      "to": ["V", "V7"],
+      "feedback": "Supertonic to dominant. Another descending-5th relation. Together with V-I, this forms the complete ii-V-I chain that underlies most cadences."
+    },
+    {
+      "id": "CORE-I-II",
+      "quality": "good",
+      "from": ["I", "i"],
+      "to": ["ii", "ii7"],
+      "feedback": "Tonic to supertonic. Opens the predominant area. The bass rises a step, setting up a stepwise approach to the cadence."
+    },
+    {
+      "id": "CORE-V-VI",
+      "quality": "good",
+      "from": ["V", "V7"],
+      "to": ["vi", "VI"],
+      "feedback": "Deceptive motion. The dominant avoids the tonic and lands on vi (VI in minor), delaying closure. Often launches a phrase extension."
+    },
+    {
+      "id": "CORE-VI-II",
+      "quality": "good",
+      "from": ["vi", "VI"],
+      "to": ["ii", "ii7"],
+      "feedback": "Submediant to supertonic. Two steps down the circle of fifths. Root motion by descending 4th continues the strong forward direction."
+    },
+    {
+      "id": "CORE-II-VII",
+      "quality": "fair",
+      "from": ["ii", "ii7"],
+      "to": ["vii", "vii\u00B0"],
+      "feedback": "Supertonic to leading-tone triad. Both chords share the supertonic and subdominant, so the connection is smooth but the direction feels stalled."
+    },
+    {
+      "id": "CORE-VII-I",
+      "quality": "excellent",
+      "from": ["vii", "vii\u00B0", "vii\u00B06"],
+      "to": ["I", "i"],
+      "feedback": "Leading-tone triad to tonic. The leading tone rises to 1 in the upper voice or in the bass. Textbook contrapuntal resolution."
+    },
+    {
+      "id": "CORE-VII-V",
+      "quality": "discouraged",
+      "from": ["vii", "vii\u00B0"],
+      "to": ["V", "V7"],
+      "feedback": "Leading-tone triad to dominant. The leading tone fails to resolve. Because both chords contain the leading tone, the motion sounds circular."
+    },
+    {
+      "id": "CORE-VII-VI",
+      "quality": "fair",
+      "from": ["vii", "vii\u00B0"],
+      "to": ["vi", "VI"],
+      "feedback": "Leading-tone triad to submediant. Deceptive motion. The leading tone resolves up to 1 of vi, giving a soft landing."
+    },
+
+    {
+      "id": "EXP-I-I6",
+      "quality": "good",
+      "from": ["I", "i"],
+      "to": ["I6", "i6"],
+      "feedback": "Tonic to its own first inversion. Bass moves 1 to 3. The chord is prolonged while the bass picks up melodic motion."
+    },
+    {
+      "id": "EXP-I6-I",
+      "quality": "good",
+      "from": ["I6", "i6"],
+      "to": ["I", "i"],
+      "feedback": "First-inversion tonic back to root position. Bass steps 3 to 1. Idiomatic close of a tonic expansion."
+    },
+    {
+      "id": "EXP-I6-V6",
+      "quality": "good",
+      "from": ["I6", "i6"],
+      "to": ["V6", "v6"],
+      "feedback": "I6 to V6 as a neighbor motion. Bass steps 3 to 7 and back. Idiomatic expansion of the tonic."
+    },
+    {
+      "id": "EXP-V6-I",
+      "quality": "good",
+      "from": ["V6", "v6"],
+      "to": ["I", "i"],
+      "feedback": "V6 to I. Bass 7 rises to 1. One of the smoothest ways to close a phrase without the weight of root-position V."
+    },
+    {
+      "id": "EXP-V6-V",
+      "quality": "fair",
+      "from": ["V6", "v6"],
+      "to": ["V", "V7"],
+      "feedback": "V6 to root-position V. Bass moves 7 to 5. Clear harmonic arrival after the contrapuntal first-inversion stage."
+    },
+    {
+      "id": "EXP-V-V6",
+      "quality": "fair",
+      "from": ["V", "V7"],
+      "to": ["V6", "v6"],
+      "feedback": "Root-position V to V6. Prolongs dominant harmony while the bass picks up motion. Fine mid-phrase, weak at cadences."
+    },
+    {
+      "id": "EXP-I-V6",
+      "quality": "good",
+      "from": ["I", "i"],
+      "to": ["V6", "v6"],
+      "feedback": "Tonic to V6 as a neighboring chord. The bass steps 1 to 7 and returns, adding motion to a tonic prolongation."
+    },
+    {
+      "id": "EXP-I6-II6",
+      "quality": "good",
+      "from": ["I6", "i6"],
+      "to": ["ii6", "II6"],
+      "feedback": "I6 to ii6. Bass 3 to 4 is a step upward. Idiomatic stepwise approach to the cadential supertonic."
+    },
+    {
+      "id": "EXP-I-II6",
+      "quality": "good",
+      "from": ["I", "i"],
+      "to": ["ii6", "II6"],
+      "feedback": "Tonic to ii6. Approaching the cadential supertonic from a fresh tonic. The bass steps up, opening the predominant area."
+    },
+    {
+      "id": "EXP-II-II6",
+      "quality": "good",
+      "from": ["ii", "ii7"],
+      "to": ["ii6", "II6"],
+      "feedback": "Root-position supertonic to its first inversion. Bass steps 2 to 4. Idiomatic expansion of supertonic harmony."
+    },
+    {
+      "id": "EXP-II6-II",
+      "quality": "fair",
+      "from": ["ii6", "II6"],
+      "to": ["ii", "ii7"],
+      "feedback": "Supertonic first inversion back to root position. Acceptable mid-phrase. Avoid at cadences."
+    },
+    {
+      "id": "EXP-IV-IV6",
+      "quality": "good",
+      "from": ["IV", "iv"],
+      "to": ["IV6", "iv6"],
+      "feedback": "Subdominant to its first inversion. Bass steps 4 to 6. Adds melodic activity to a subdominant prolongation."
+    },
+    {
+      "id": "EXP-IV6-IV",
+      "quality": "fair",
+      "from": ["IV6", "iv6"],
+      "to": ["IV", "iv"],
+      "feedback": "Subdominant first inversion back to root. Bass steps 6 to 4. Fine mid-phrase, weaker at cadences."
+    },
+    {
+      "id": "EXP-IV-V6",
+      "quality": "good",
+      "from": ["IV", "iv"],
+      "to": ["V6", "v6"],
+      "feedback": "IV to V6. Bass steps 4 to 7. Contrapuntal approach to the dominant that avoids a root-position arrival."
+    },
+    {
+      "id": "EXP-V6-VI",
+      "quality": "good",
+      "from": ["V6", "v6"],
+      "to": ["vi", "VI"],
+      "feedback": "V6 to vi. Bass 7 rises to 1 while the upper voices slide into the submediant. A deceptive motion in first inversion."
+    },
+    {
+      "id": "EXP-I-VI6",
+      "quality": "good",
+      "from": ["I", "i"],
+      "to": ["vi6", "VI6"],
+      "feedback": "Tonic to submediant first inversion. The bass steps 1 to 6, giving a smooth descent into the mediant area."
+    },
+    {
+      "id": "EXP-I6-IV6",
+      "quality": "good",
+      "from": ["I6", "i6"],
+      "to": ["IV6", "iv6"],
+      "feedback": "I6 to IV6. Bass 3 to 6 is a descending step. Smooth expansion of tonic into subdominant."
+    },
+    {
+      "id": "EXP-III-V",
+      "quality": "fair",
+      "from": ["iii", "III"],
+      "to": ["V", "V7"],
+      "feedback": "Mediant to dominant. The bass leaps a third down. Works but iii rarely feels like a real point of departure."
+    },
+    {
+      "id": "EXP-III-IV",
+      "quality": "fair",
+      "from": ["iii", "III"],
+      "to": ["IV", "iv"],
+      "feedback": "Mediant to subdominant. Rare outside of sequences. The ear hears the motion as unfocused."
+    },
+    {
+      "id": "EXP-III-VI",
+      "quality": "good",
+      "from": ["iii"],
+      "to": ["vi", "VI"],
+      "feedback": "Mediant to submediant. Root motion by descending 4th continues the circle of fifths."
+    },
+
+    {
+      "id": "PAIR-I-VI",
+      "quality": "good",
+      "from": ["I", "i"],
+      "to": ["vi", "VI"],
+      "feedback": "Tonic to submediant. The two chords share two tones, so the motion is smooth and the tonic is prolonged rather than left."
+    },
+    {
+      "id": "PAIR-VI-V",
+      "quality": "good",
+      "from": ["vi", "VI"],
+      "to": ["V", "V7"],
+      "feedback": "Submediant to dominant. Bass steps 6 to 5. Common as a substitute for ii-V and idiomatic in the major mode."
+    },
+    {
+      "id": "PAIR-VI-IV",
+      "quality": "fair",
+      "from": ["vi", "VI"],
+      "to": ["IV", "iv"],
+      "feedback": "Submediant to subdominant. Backward motion in the circle of fifths. The direction feels weak, but the shared tones make it smooth."
+    },
+    {
+      "id": "PAIR-VI-I",
+      "quality": "fair",
+      "from": ["vi", "VI"],
+      "to": ["I", "i"],
+      "feedback": "Submediant to tonic. Both chords share two tones, so the motion is smooth but does not create a strong sense of arrival."
+    },
+    {
+      "id": "PAIR-I-III",
+      "quality": "discouraged",
+      "from": ["I", "i"],
+      "to": ["iii", "III"],
+      "feedback": "Tonic to mediant. The two chords share so many tones that the motion sounds like a prolongation rather than a departure."
+    },
+    {
+      "id": "PAIR-III-I",
+      "quality": "discouraged",
+      "from": ["iii", "III"],
+      "to": ["I", "i"],
+      "feedback": "Mediant to tonic. The ear does not hear iii as a real goal, so the return to I feels arbitrary rather than earned."
+    },
+    {
+      "id": "PAIR-III-II",
+      "quality": "discouraged",
+      "from": ["iii"],
+      "to": ["ii", "ii7"],
+      "feedback": "Mediant to supertonic. Both chords are weak in isolation and the motion is a step down. Unclear function."
+    },
+    {
+      "id": "PAIR-IV-III",
+      "quality": "discouraged",
+      "from": ["IV"],
+      "to": ["iii"],
+      "feedback": "Subdominant to mediant. Rarely used. The direction is unclear, and iii cannot serve as a goal."
+    },
+    {
+      "id": "PAIR-IV-II",
+      "quality": "fair",
+      "from": ["IV", "iv"],
+      "to": ["ii", "ii7"],
+      "feedback": "Subdominant to supertonic. Both are predominant chords, so the direction is backwards."
+    },
+    {
+      "id": "PAIR-II-III",
+      "quality": "fair",
+      "from": ["ii"],
+      "to": ["iii"],
+      "feedback": "Supertonic to mediant. Both chords are weak in root position. The motion works in sequence but not as a functional progression."
+    },
+    {
+      "id": "PAIR-II-VI",
+      "quality": "fair",
+      "from": ["ii"],
+      "to": ["vi", "VI"],
+      "feedback": "Supertonic to submediant. The bass leaps down a fourth, which is idiomatic, but vi is a weak goal."
+    },
+
+    {
+      "id": "RETRO-V-IV",
+      "quality": "discouraged",
+      "from": ["V", "V7"],
+      "to": ["IV", "iv"],
+      "feedback": "Dominant to subdominant is a retrogression — the reverse of the circle of fifths. The dominant's forward pull is negated."
+    },
+    {
+      "id": "RETRO-V-II",
+      "quality": "discouraged",
+      "from": ["V", "V7"],
+      "to": ["ii", "ii7"],
+      "feedback": "Dominant to supertonic is a retrogression. ii should lead into V, not follow it."
+    },
+    {
+      "id": "RETRO-V-II6",
+      "quality": "discouraged",
+      "from": ["V", "V7"],
+      "to": ["ii6", "II6"],
+      "feedback": "Dominant to supertonic first inversion. A retrogression in the circle of fifths. The dominant should push forward, not back."
+    },
+    {
+      "id": "RETRO-V-III",
+      "quality": "bad",
+      "from": ["V", "V7"],
+      "to": ["iii"],
+      "feedback": "Dominant to mediant. The dominant is expected to resolve to I or vi. iii shares two tones with V, so the motion sounds indecisive."
+    },
+    {
+      "id": "RETRO-II6-I",
+      "quality": "discouraged",
+      "from": ["ii6", "II6"],
+      "to": ["I", "i"],
+      "feedback": "Supertonic first inversion to tonic. Bass steps 4 to 1. The supertonic wants to lead into V, not back into I."
+    },
+    {
+      "id": "RETRO-II6-I6",
+      "quality": "discouraged",
+      "from": ["ii6", "II6"],
+      "to": ["I6", "i6"],
+      "feedback": "Supertonic first inversion to tonic first inversion. Both chords are approached by step but the direction is backwards."
+    },
+    {
+      "id": "RETRO-II-I6",
+      "quality": "discouraged",
+      "from": ["ii", "ii7"],
+      "to": ["I6", "i6"],
+      "feedback": "Supertonic to first-inversion tonic. Retrogression. ii should lead into V, not return to a I6."
+    },
+    {
+      "id": "RETRO-II-I",
+      "quality": "discouraged",
+      "from": ["ii", "ii7"],
+      "to": ["I", "i"],
+      "feedback": "Supertonic to tonic. The bass typically steps down, which sounds weak. ii should lead to V, not return to I."
+    },
+    {
+      "id": "RETRO-II6-IV",
+      "quality": "fair",
+      "from": ["ii6", "II6"],
+      "to": ["IV", "iv"],
+      "feedback": "Supertonic first inversion to subdominant. Backward motion within the predominant area. Both chords have subdominant function, so the direction feels redundant."
+    },
+    {
+      "id": "RETRO-V6-IV",
+      "quality": "discouraged",
+      "from": ["V6", "v6"],
+      "to": ["IV", "iv"],
+      "feedback": "V6 to subdominant. The bass of V6 (leading tone) must continue by step to I. Going backward to a predominant leaves the leading tone unresolved."
+    },
+    {
+      "id": "RETRO-III-V",
+      "quality": "fair",
+      "from": ["iii"],
+      "to": ["V", "V7"],
+      "feedback": "Mediant to dominant. The bass leaps a sixth. Works but is less smooth than ii-V or IV-V."
+    },
+    {
+      "id": "RETRO-IV-VI",
+      "quality": "fair",
+      "from": ["IV"],
+      "to": ["vi", "VI"],
+      "feedback": "Subdominant to submediant. A retrogression in the circle of fifths. Both chords are subdominant-function, so the direction feels backwards."
+    },
+
+    {
+      "id": "WEAK-TO-III",
+      "quality": "discouraged",
+      "from": ["*"],
+      "to": ["iii", "III"],
+      "feedback": "iii is the weakest diatonic triad because it shares two tones with both I and V. Arriving on iii feels unresolved."
+    },
+    {
+      "id": "WEAK-VII-ROOT",
+      "quality": "discouraged",
+      "from": ["*"],
+      "to": ["vii", "vii\u00B0"],
+      "feedback": "Root-position vii\u00B0 contains a tritone above the bass, which sounds unstable. First inversion is much more idiomatic."
+    },
+    {
+      "id": "WEAK-VII-VIIO",
+      "quality": "fair",
+      "from": ["vii", "vii\u00B0"],
+      "to": ["iii"],
+      "feedback": "Leading-tone triad to mediant. Both chords share two tones, so the motion is smooth, but the arrival on iii is weak."
+    },
+    {
+      "id": "WEAK-VII-IV",
+      "quality": "fair",
+      "from": ["vii", "vii\u00B0"],
+      "to": ["IV", "iv"],
+      "feedback": "Leading-tone triad to subdominant. The bass leaps up a fourth. Functionally odd since vii\u00B0 wants to resolve to I."
+    },
+
+    {
+      "id": "STATIC-I-I",
+      "quality": "fair",
+      "from": ["I", "i"],
+      "to": ["I", "i"],
+      "feedback": "Tonic repeated. Prolongs the key without motion. Fine at a phrase opening or in a pedal, static in the middle."
+    },
+    {
+      "id": "STATIC-V-V",
+      "quality": "fair",
+      "from": ["V", "V7"],
+      "to": ["V", "V7"],
+      "feedback": "Dominant repeated. Prolongs tension. The ear expects the dominant to resolve, not repeat."
+    },
+
+    {
+      "id": "MIX-v-TO-i",
+      "quality": "good",
+      "from": ["v"],
+      "to": ["i"],
+      "feedback": "Minor dominant resolving to tonic — a modal (Dorian) colouring that softens the leading-tone pull of the major dominant. Idiomatic in modal and folk-influenced writing."
+    },
+    {
+      "id": "MIX-i-TO-v",
+      "quality": "fair",
+      "from": ["i"],
+      "to": ["v"],
+      "feedback": "Tonic to the minor dominant. The lowered seventh substitutes for the leading tone, giving a modal rather than functional dominant."
+    },
+    {
+      "id": "MIX-v-TO-VI",
+      "quality": "fair",
+      "from": ["v"],
+      "to": ["VI"],
+      "feedback": "Minor dominant to submediant. A deceptive motion in the modal (Dorian) idiom, common in modal and Renaissance-influenced music."
+    },
+
+        {
+      "id": "MODAL-VII-I",
+      "quality": "good",
+      "from": ["VII", "VII6"],
+      "to": ["I", "i", "I6", "i6"],
+      "feedback": "Subtonic to tonic \u2014 a modal cadence. The lowered seventh approaches the tonic by whole step rather than by the leading-tone half step. Idiomatic in modal, folk, and Renaissance-derived writing."
+    },
+    {
+      "id": "MODAL-VII7-I",
+      "quality": "good",
+      "from": ["VII7", "VII65", "VII43", "VII42"],
+      "to": ["I", "i", "I6", "i6"],
+      "feedback": "Subtonic seventh resolving to tonic. The chord looks like a dominant seventh but lacks the leading tone, so the resolution is modal rather than functional. Common in Baroque and nineteenth-century writing, and a hallmark of the descending-fifths sequence."
+    },
+    {
+      "id": "MODAL-v-i",
+      "quality": "good",
+      "from": ["v", "v7"],
+      "to": ["i", "i6"],
+      "feedback": "Minor (modal) dominant to tonic \u2014 a Dorian or Aeolian cadence. Without the raised leading tone, the resolution is softer than a harmonic-minor V\u2013i."
+    },
+    {
+      "id": "MODAL-i-v",
+      "quality": "fair",
+      "from": ["i", "i6"],
+      "to": ["v", "v7"],
+      "feedback": "Tonic to minor (modal) dominant. The ear hears the dominant degree without the leading-tone pull of a major V; a Dorian-flavoured motion."
+    },
+    {
+      "id": "MODAL-v-iv",
+      "quality": "fair",
+      "from": ["v", "v7"],
+      "to": ["iv", "iv6"],
+      "feedback": "Minor dominant to minor subdominant \u2014 a Dorian motion. The chord moves against the expected functional flow, but is idiomatic in modal contexts and folk-influenced writing."
+    },
+    {
+      "id": "MODAL-iv-v",
+      "quality": "fair",
+      "from": ["iv", "iv6"],
+      "to": ["v", "v7"],
+      "feedback": "Minor subdominant to minor (modal) dominant. Dorian-flavoured stepwise motion into the modal dominant."
+    },
+    {
+      "id": "MODAL-III-VII",
+      "quality": "fair",
+      "from": ["III", "III6"],
+      "to": ["VII", "VII6", "VII7", "VII65"],
+      "feedback": "Mediant to subtonic \u2014 \u266DIII to \u266DVII in the home mode. A modal step-down, idiomatic in modal and folk-influenced writing; less common in functional common-practice harmony."
+    },
+    {
+      "id": "MODAL-iv-VII",
+      "quality": "good",
+      "from": ["iv", "iv6"],
+      "to": ["VII", "VII6", "VII7", "VII65"],
+      "feedback": "Minor subdominant to subtonic. The motion prepares a modal cadence on i (or I) using the lowered seventh degree."
+    },
+
+    {
+      "id": "STATIC-ANY-ANY",
+      "quality": "fair",
+      "from": ["*"],
+      "to": ["*"],
+      "feedback": "The same chord is repeated. Fine for prolongation; otherwise static."
+    },
+
+    {
+      "id": "FALLBACK",
+      "quality": "fair",
+      "from": ["*"],
+      "to": ["*"],
+      "feedback": "A neutral transition. There is no strong functional pull in either direction."
+    }
+
+  ]
+}

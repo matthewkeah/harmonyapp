@@ -1,0 +1,47 @@
+{
+  "_readme": {
+    "pass": 3,
+    "covers": "Units 11-15. Structural rules for VI and IV6 uses, supertonic/subdominant seventh chords, plagal motion and IV6->I6, tonicization of V, and III/VII uses.",
+    "structure": "Every rule has: rule_id, tier, category, weight, error_message, check.",
+    "handlers_registered_in": "sheria_pass3.py",
+    "how_to_add_a_rule": [
+      "1. Copy a rule block between { and }.",
+      "2. Give it a new unique rule_id.",
+      "3. Choose a check.type that a pass module has registered.",
+      "4. Adjust the numbers inside check.",
+      "5. Rewrite error_message in plain English.",
+      "6. Save. No trailing comma after the last rule."
+    ]
+  },
+
+  "rules": [
+
+    {
+      "rule_id": "P3-NO-MELODIC-A2",
+      "tier": "VOICE_LEADING",
+      "category": "Melodic Motion",
+      "weight": 6,
+      "error_message": "Melodic augmented second (b6 to raised 7) — double the 3rd of VI to avoid this",
+      "check": { "type": "no_melodic_augmented_second" }
+    },
+
+    {
+      "rule_id": "P3-II7-INCOMPLETE",
+      "tier": "CONTEXTUAL",
+      "category": "Voice Leading",
+      "weight": 4,
+      "error_message": "Root-position ii7 after tonic in major should omit its 5th to avoid parallel fifths",
+      "check": { "type": "ii7_incomplete_after_tonic" }
+    },
+
+    {
+      "rule_id": "P3-INTERMEDIATE-DESCEND",
+      "tier": "CONTEXTUAL",
+      "category": "Harmonic Syntax",
+      "weight": 5,
+      "error_message": "The roots of successive intermediate harmonies should descend by 5th or 3rd, not ascend",
+      "check": { "type": "intermediate_root_must_descend" }
+    }
+
+  ]
+}
