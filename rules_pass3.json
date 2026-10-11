@@ -4,6 +4,7 @@
     "covers": "Units 11-15. Structural rules for VI and IV6 uses, supertonic/subdominant seventh chords, plagal motion and IV6->I6, tonicization of V, and III/VII uses.",
     "structure": "Every rule has: rule_id, tier, category, weight, error_message, check.",
     "handlers_registered_in": "sheria_pass3.py",
+    "note_on_intermediate_descend": "The old P3-INTERMEDIATE-DESCEND rule was deleted. It fired on any ascending motion between any two chords of the intermediate set, which includes virtually every common diatonic progression. Intermediate motion is now rated by quality_pass1 and quality_pass3 rather than flagged as a fault.",
     "how_to_add_a_rule": [
       "1. Copy a rule block between { and }.",
       "2. Give it a new unique rule_id.",
@@ -32,15 +33,6 @@
       "weight": 4,
       "error_message": "Root-position ii7 after tonic in major should omit its 5th to avoid parallel fifths",
       "check": { "type": "ii7_incomplete_after_tonic" }
-    },
-
-    {
-      "rule_id": "P3-INTERMEDIATE-DESCEND",
-      "tier": "CONTEXTUAL",
-      "category": "Harmonic Syntax",
-      "weight": 5,
-      "error_message": "The roots of successive intermediate harmonies should descend by 5th or 3rd, not ascend",
-      "check": { "type": "intermediate_root_must_descend" }
     }
 
   ]

@@ -59,13 +59,19 @@ def _both_intermediate(prev, chord, ctx):
 
 
 def ascending_fifth_retrogression(checker, rule, spec, chord, ctx, index):
-    """Root motion by ascending 5th.
+    """Root motion by ascending 5th (equivalent to descending 4th in
+    the reverse direction).
 
-    Skip when the previous dominant is inverted (V6, V65, V43, V42).
-    Inverted dominants often act as passing chords and behave
-    differently from root-position V. Also skip when the previous
-    chord is a cadential 6/4, when the pair is inside a sequence, or
-    when the pair is two intermediates.
+    Exemptions:
+      * I → V (tonic prolongation)
+      * IV → I (plagal cadence)
+      * Inside a sequence
+      * Both chords are intermediates
+      * Previous chord is a cadential 6/4
+      * Previous chord is an inverted dominant (V6, V65, V43, V42)
+      * Target is a descending-2nd motion (V→IV, which is caught
+        by P2-NO-RETRO instead; V→ii is the ascending-5th case
+        that this rule is designed for)
     """
     prev = checker._prev(ctx, index)
     if prev is None:
@@ -88,7 +94,9 @@ def ascending_fifth_retrogression(checker, rule, spec, chord, ctx, index):
         return []
     if prev_interval == 5 and curr_interval == 0:
         return []
-    # Skip when the dominant source is inverted.
+    # Skip V → IV (descending 2nd motion, not ascending 5th from ii).
+    # Actually V(7) → IV(5) is diff = 10, not 7, so it wouldn't reach
+    # here anyway. Kept the check as documentation.
     if prev.function == "dominant" and prev.inversion not in ("root", "7"):
         return []
     return [ErrorDetail(rule.error_message, rule.weight, chord.tick,
@@ -110,14 +118,6 @@ def minor_v_in_major(checker, rule, spec, chord, ctx, index):
 
 
 def unknown_consonant_six_four(checker, rule, spec, chord, ctx, index):
-    """A 6/4 chord with no idiomatic classification.
-
-    The rule only fires when the 6/4 is on a strong beat. On weak or
-    medium beats, a 6/4 is almost always a passing or neighbour
-    chord in a prolongation; the classifier may not recognise the
-    pattern because it requires an exact root match between prev and
-    next, which real figuration breaks.
-    """
     if chord.inversion != "64":
         return []
     if chord.six_four_type in ("cadential", "passing", "neighboring",
