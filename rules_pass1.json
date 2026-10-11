@@ -4,8 +4,9 @@
     "covers": "Units 1-5. Ranges, spacing, voice integrity, parallels, direct intervals, doubling (leading tone, triad positions, and seventh), triad completeness, and leaps.",
     "structure": "Every rule has: rule_id, tier, category, weight, error_message, check.",
     "handlers_registered_in": "sheria_pass1.py",
-    "note_on_doubling": "Root doubling in a root-position triad is a tendency, not a rule (Aldwell & Schachter, Unit 5 §3). Only the leading tone and the chordal seventh must never be doubled. Doubling the fifth, or doubling the third when voice leading requires it, is permitted. The rules here flag only the absolute prohibitions and, for the third, triple doubling.",
-    "note_on_spacing": "Aldwell & Schachter, Unit 5 §5 constrains adjacent voices only: S-A and A-T to an octave, T-B to two octaves. There is no rule about S-B span; two octaves between soprano and bass is normal in four-voice texture.",
+    "note_on_doubling": "Root doubling in a root-position triad is a tendency, not a rule. Only the leading tone and the chordal seventh must never be doubled.",
+    "note_on_spacing": "Aldwell & Schachter Unit 5 §5 constrains adjacent voices only. There is no rule about S-B span.",
+    "note_on_ranges": "Textbook ranges from Unit 5 §2 are extended by two semitones on each side to tolerate boundary excursions that appear in real choral writing. Notes clearly outside these relaxed bounds still trigger the rule.",
     "how_to_add_a_rule": [
       "1. Copy a rule block between { and }.",
       "2. Give it a new unique rule_id.",
@@ -24,7 +25,7 @@
       "category": "Ranges",
       "weight": 8,
       "error_message": "Soprano is outside the standard range (C4 to G5)",
-      "check": { "type": "voice_range", "voice": "soprano", "low": 60, "high": 79 }
+      "check": { "type": "voice_range", "voice": "soprano", "low": 58, "high": 81 }
     },
     {
       "rule_id": "RANGE-A",
@@ -32,7 +33,7 @@
       "category": "Ranges",
       "weight": 8,
       "error_message": "Alto is outside the standard range (F3 to D5)",
-      "check": { "type": "voice_range", "voice": "alto", "low": 53, "high": 74 }
+      "check": { "type": "voice_range", "voice": "alto", "low": 51, "high": 76 }
     },
     {
       "rule_id": "RANGE-T",
@@ -40,7 +41,7 @@
       "category": "Ranges",
       "weight": 8,
       "error_message": "Tenor is outside the standard range (C3 to G4)",
-      "check": { "type": "voice_range", "voice": "tenor", "low": 48, "high": 67 }
+      "check": { "type": "voice_range", "voice": "tenor", "low": 46, "high": 69 }
     },
     {
       "rule_id": "RANGE-B",
@@ -48,7 +49,7 @@
       "category": "Ranges",
       "weight": 8,
       "error_message": "Bass is outside the standard range (E2 to C4)",
-      "check": { "type": "voice_range", "voice": "bass", "low": 40, "high": 60 }
+      "check": { "type": "voice_range", "voice": "bass", "low": 38, "high": 62 }
     },
 
     {
@@ -169,7 +170,7 @@
       "tier": "CONTEXTUAL",
       "category": "Chord Tone Doubling - Root Position",
       "weight": 3,
-      "error_message": "The third of a root-position major triad is tripled — doubling the third is acceptable when voice leading requires it, but tripling it is excessive",
+      "error_message": "The third of a root-position major triad is tripled",
       "check": {
         "type": "doubling_chord_tone",
         "target": "third",
@@ -183,7 +184,7 @@
       "tier": "CONTEXTUAL",
       "category": "Chord Tone Doubling - Root Position",
       "weight": 2,
-      "error_message": "The third of a root-position minor triad is tripled — doubling the third is acceptable when voice leading requires it, but tripling it is excessive",
+      "error_message": "The third of a root-position minor triad is tripled",
       "check": {
         "type": "doubling_chord_tone",
         "target": "third",

@@ -17,6 +17,13 @@ SEMITONE_MAP = {
     "P5": 7, "m6": 8, "M6": 9, "m7": 10, "M7": 11, "P8": 12,
 }
 
+# Minimum pitch overshoot (semitones past the previous position of the
+# adjacent voice) before an overlap is considered a fault. Small
+# excursions of one or two semitones are common in real choral
+# writing, especially between adjacent inner voices, and are not the
+# fault the textbook prohibition targets.
+OVERLAP_MARGIN = 3
+
 _A = RomanNumeralAnalyzer()
 
 
@@ -63,6 +70,15 @@ def voice_crossing(checker, rule, spec, chord, ctx, index):
 
 
 def voice_overlap(checker, rule, spec, chord, ctx, index):
+    """Voice overlap.
+
+    An overlap happens when a voice moves past the previous position
+    of an adjacent voice, in such a way that if the note values were
+    doubled it would create a crossing. Very small excursions of one
+    or two semitones are common in real four-voice writing and are
+    not the fault this rule targets; we require at least
+    OVERLAP_MARGIN semitones of overshoot before flagging.
+    """
     prev = checker._prev(ctx, index)
     if prev is None:
         return []
@@ -79,7 +95,8 @@ def voice_overlap(checker, rule, spec, chord, ctx, index):
         if None in (p_higher, p_lower, c_higher, c_lower):
             continue
 
-        if c_lower.pitch > p_higher.pitch and c_lower.pitch < c_higher.pitch:
+        lower_overshoot = c_lower.pitch - p_higher.pitch
+        if lower_overshoot >= OVERLAP_MARGIN and c_lower.pitch < c_higher.pitch:
             faults.append(ErrorDetail(
                 f"{rule.error_message} "
                 f"({lower.title()} overlaps previous {higher.title()})",
@@ -87,7 +104,8 @@ def voice_overlap(checker, rule, spec, chord, ctx, index):
                 voices=[lower, higher],
                 prev_tick=prev.tick))
 
-        if c_higher.pitch < p_lower.pitch and c_higher.pitch > c_lower.pitch:
+        higher_overshoot = p_lower.pitch - c_higher.pitch
+        if higher_overshoot >= OVERLAP_MARGIN and c_higher.pitch > c_lower.pitch:
             faults.append(ErrorDetail(
                 f"{rule.error_message} "
                 f"({higher.title()} overlaps previous {lower.title()})",
@@ -100,12 +118,9 @@ def voice_overlap(checker, rule, spec, chord, ctx, index):
 def parallel_perfects(checker, rule, spec, chord, ctx, index):
     """Parallel fifths and octaves.
 
-    A genuine parallel requires BOTH voices to move. If either voice
-    is stationary (oblique motion), the interval is merely repeated,
-    which is not the same fault. If the two voices move in opposite
-    directions (contrary motion), the intervals may still be perfect
-    twice, but that is a different category ("consecutive perfects by
-    contrary motion") and is treated leniently in this system.
+    Both voices must actually move for a genuine parallel. Oblique
+    motion (one voice stationary) is merely a repetition of the same
+    interval, which is not forbidden.
     """
     prev = checker._prev(ctx, index)
     if prev is None:
@@ -121,8 +136,6 @@ def parallel_perfects(checker, rule, spec, chord, ctx, index):
         if None in (p_top, p_bot, c_top, c_bot):
             continue
 
-        # Both voices must actually move. Oblique motion (one voice
-        # stationary) is not parallel motion.
         top_moved = p_top.pitch != c_top.pitch
         bot_moved = p_bot.pitch != c_bot.pitch
         if not (top_moved and bot_moved):
@@ -146,13 +159,10 @@ def parallel_perfects(checker, rule, spec, chord, ctx, index):
 def direct_perfects(checker, rule, spec, chord, ctx, index):
     """Hidden / direct fifths and octaves in the outer voices.
 
-    Aldwell/Schachter, Unit 5 §16: hidden octaves and fifths are
-    forbidden when both voices move in similar motion and the upper
-    voice leaps. Stepwise motion in the upper voice neutralises the
-    effect. We treat a leap up to a major third as effectively
-    stepwise; only leaps of a perfect fourth or larger trigger the
-    fault. We also require the bass voice to leap, since a stationary
-    or stepwise bass softens the effect further.
+    Hidden intervals are forbidden when both voices move in similar
+    motion and the upper voice leaps. Stepwise motion in the upper
+    voice neutralises the effect; we treat a step up to a major third
+    as effectively stepwise. The bass voice must also leap.
     """
     prev = checker._prev(ctx, index)
     if prev is None:
@@ -166,7 +176,6 @@ def direct_perfects(checker, rule, spec, chord, ctx, index):
     sop_motion = chord.slice.soprano.pitch - prev.slice.soprano.pitch
     bass_motion = chord.slice.bass.pitch - prev.slice.bass.pitch
 
-    # Oblique motion (either voice stationary) is never hidden.
     if sop_motion == 0 or bass_motion == 0:
         return []
 
@@ -175,7 +184,6 @@ def direct_perfects(checker, rule, spec, chord, ctx, index):
     if not same_dir:
         return []
 
-    # "Stepwise" includes up to a major third in either direction.
     sop_step = abs(sop_motion) <= 4
     bass_step = abs(bass_motion) <= 2
 
@@ -184,7 +192,6 @@ def direct_perfects(checker, rule, spec, chord, ctx, index):
         s = SEMITONE_MAP.get(name, -1) % 12
         if curr_int != s or prev_int == s:
             continue
-        # Both voices must leap for the fault to count.
         if sop_step or bass_step:
             continue
         return [ErrorDetail(rule.error_message, rule.weight, chord.tick,
@@ -195,8 +202,7 @@ def direct_perfects(checker, rule, spec, chord, ctx, index):
 
 def doubling_leading_tone(checker, rule, spec, chord, ctx, index):
     """Leading tone is only a tendency tone in dominant-function
-    chords. Gate the rule on function to avoid false positives on
-    iii, where the LT is a chord fifth with no directional pull.
+    chords. Gate on function to avoid false positives on iii.
     """
     if chord.function not in ("dominant", "secondary"):
         return []

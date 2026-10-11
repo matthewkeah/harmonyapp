@@ -4,6 +4,7 @@
     "covers": "Units 6-10. Cadences, 6/4 chords, V7 and its inversions, I6/V6/VII6, intermediate harmonies IV/II/II6, leading-tone resolution refinements, and the meter/syntax rules from Units 6-10.",
     "structure": "Every rule has: rule_id, tier, category, weight, error_message, check.",
     "handlers_registered_in": "sheria_pass2.py",
+    "note_on_lt_resolution": "P2-RESOLVE-LT-OUTER checks soprano and bass. P2-RESOLVE-LT-ANY covers only alto and tenor, so the two rules never fire on the same voice. Outer voices receive the heavier weight.",
     "how_to_add_a_rule": [
       "1. Copy a rule block between { and }.",
       "2. Give it a new unique rule_id.",
@@ -32,10 +33,10 @@
       "tier": "VOICE_LEADING",
       "category": "Resolution",
       "weight": 5,
-      "error_message": "Leading tone did not resolve up to the tonic",
+      "error_message": "Leading tone in an inner voice did not resolve up to the tonic",
       "check": {
         "type": "leading_tone_resolution",
-        "voices": ["soprano", "alto", "tenor", "bass"]
+        "voices": ["alto", "tenor"]
       }
     },
     {

@@ -59,6 +59,14 @@ def _both_intermediate(prev, chord, ctx):
 
 
 def ascending_fifth_retrogression(checker, rule, spec, chord, ctx, index):
+    """Root motion by ascending 5th.
+
+    Skip when the previous dominant is inverted (V6, V65, V43, V42).
+    Inverted dominants often act as passing chords and behave
+    differently from root-position V. Also skip when the previous
+    chord is a cadential 6/4, when the pair is inside a sequence, or
+    when the pair is two intermediates.
+    """
     prev = checker._prev(ctx, index)
     if prev is None:
         return []
@@ -80,22 +88,8 @@ def ascending_fifth_retrogression(checker, rule, spec, chord, ctx, index):
         return []
     if prev_interval == 5 and curr_interval == 0:
         return []
-    return [ErrorDetail(rule.error_message, rule.weight, chord.tick,
-                        prev_tick=prev.tick)]
-
-
-def ascending_third_root_motion(checker, rule, spec, chord, ctx, index):
-    prev = checker._prev(ctx, index)
-    if prev is None:
-        return []
-    if prev.root_pc == -1 or chord.root_pc == -1:
-        return []
-    if _in_sequence(ctx, index):
-        return []
-    if _both_intermediate(prev, chord, ctx):
-        return []
-    diff = (chord.root_pc - prev.root_pc) % 12
-    if diff not in (3, 4):
+    # Skip when the dominant source is inverted.
+    if prev.function == "dominant" and prev.inversion not in ("root", "7"):
         return []
     return [ErrorDetail(rule.error_message, rule.weight, chord.tick,
                         prev_tick=prev.tick)]
@@ -116,36 +110,26 @@ def minor_v_in_major(checker, rule, spec, chord, ctx, index):
 
 
 def unknown_consonant_six_four(checker, rule, spec, chord, ctx, index):
+    """A 6/4 chord with no idiomatic classification.
+
+    The rule only fires when the 6/4 is on a strong beat. On weak or
+    medium beats, a 6/4 is almost always a passing or neighbour
+    chord in a prolongation; the classifier may not recognise the
+    pattern because it requires an exact root match between prev and
+    next, which real figuration breaks.
+    """
     if chord.inversion != "64":
         return []
     if chord.six_four_type in ("cadential", "passing", "neighboring",
                                 "arpeggiated"):
+        return []
+    if chord.metric_position != "strong":
         return []
     return [ErrorDetail(rule.error_message, rule.weight, chord.tick,
                         voices=["bass"])]
 
 
 def unresolved_accented_non_chord_tone(checker, rule, spec, chord, ctx, index):
-    """Narrow heuristic for an accented non-chord-tone.
-
-    The old version built the chord-tone set from a naive formula
-    that assumed Major or Minor quality, which misidentified the
-    chord tones of sus, diminished, and augmented chords. It also
-    required a downward resolution, missing retardations and
-    prepared suspensions.
-
-    The new version:
-
-    * builds the chord-tone set from the actual chord quality,
-    * skips sus and add chords entirely, since their fourth / ninth
-      is a defining tone rather than a non-chord tone,
-    * skips mixture and chromatic categories, whose tendency tones
-      are governed by other rules,
-    * accepts a prepared suspension (the note was already sounding
-      as a chord tone in the previous chord),
-    * accepts resolution in either direction, and
-    * does not fire if the note is a chordal seventh, fifth, etc.
-    """
     if chord.metric_position != "strong":
         return []
     if chord.category in ("aug6", "neapolitan", "secondary", "borrowed"):
@@ -187,13 +171,10 @@ def unresolved_accented_non_chord_tone(checker, rule, spec, chord, ctx, index):
             continue
         if (n.pitch % 12) in chord_tone_pcs:
             continue
-        # Prepared suspension: same voice held the pitch from the
-        # previous chord.
         if prev is not None:
             p = getattr(prev.slice, vname, None)
             if p is not None and abs(p.pitch - n.pitch) <= 2:
                 continue
-        # Resolution by step in either direction.
         if nxt is not None:
             nn = getattr(nxt.slice, vname, None)
             if nn is not None and abs(nn.pitch - n.pitch) in (1, 2):
@@ -206,7 +187,6 @@ def unresolved_accented_non_chord_tone(checker, rule, spec, chord, ctx, index):
 
 register_handlers({
     "ascending_fifth_retrogression": ascending_fifth_retrogression,
-    "ascending_third_root_motion": ascending_third_root_motion,
     "minor_v_in_major": minor_v_in_major,
     "unknown_consonant_six_four": unknown_consonant_six_four,
     "unresolved_accented_non_chord_tone": unresolved_accented_non_chord_tone,

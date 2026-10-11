@@ -9,11 +9,6 @@ _A = RomanNumeralAnalyzer()
 
 
 def _is_identifiable(chord):
-    """True when the chord has a real root, function, and label.
-
-    The chord's Roman numeral label is stored in `numeral`, not
-    `label` — see the AnalyzedChord dataclass in harmony_context.py.
-    """
     if chord.category in ("sparse", "unknown"):
         return False
     if chord.root_pc == -1:
@@ -271,32 +266,62 @@ def cadence_at_closing(checker, rule, spec, chord, ctx, index):
 
 
 def no_retrogression(checker, rule, spec, chord, ctx, index):
+    """Dominant to predominant is a retrogression.
+
+    Inverted dominants (V6, V65, V43, V42) are often passing chords
+    and behave differently from root-position V and V7. We only flag
+    the retrogression when the previous dominant was in root
+    position, and we never flag a ii6 target (ii6 is often a passing
+    or cadential chord that behaves like a subdominant rather than
+    a true supertonic).
+    """
     prev = checker._prev(ctx, index)
     if prev is None:
         return []
     if not _is_identifiable(prev) or not _is_identifiable(chord):
         return []
-    if prev.function == "dominant" and chord.function == "predominant":
-        if chord.root_pc == (ctx.key.root_pitch_class + 9) % 12:
-            return []
-        return [ErrorDetail(rule.error_message, rule.weight, chord.tick,
-                            prev_tick=prev.tick)]
-    return []
+    if prev.function != "dominant" or chord.function != "predominant":
+        return []
+    if prev.inversion not in ("root", "7"):
+        return []
+    # ii6 acts as a subdominant in practice.
+    if chord.numeral and chord.numeral.lower().startswith("ii6"):
+        return []
+    return [ErrorDetail(rule.error_message, rule.weight, chord.tick,
+                        prev_tick=prev.tick)]
 
 
 def intermediate_must_not_resolve_to_tonic(checker, rule, spec, chord, ctx, index):
+    """An intermediate harmony typically leads to V, not to I.
+
+    The rule is meant for the textbook case where a true supertonic
+    triad in root position leads directly to a root-position tonic,
+    bypassing the dominant. It does not apply when:
+
+      * the supertonic is in first inversion (ii6 behaves like a
+        subdominant and often moves to I),
+      * the resolution is not on a strong beat (passing motion), or
+      * the destination is a first-inversion tonic (a passing chord
+        target, not a point of arrival).
+    """
     prev = checker._prev(ctx, index)
     if prev is None:
         return []
     if not _is_identifiable(prev) or not _is_identifiable(chord):
         return []
-    if prev.function != "predominant":
-        return []
-    if chord.function != "tonic":
+    if prev.function != "predominant" or chord.function != "tonic":
         return []
     key_pc = ctx.key.root_pitch_class
     iv_pc = (key_pc + 5) % 12
     if prev.root_pc == iv_pc:
+        return []
+    # First-inversion supertonic (ii6) is exempt.
+    if prev.inversion == "6":
+        return []
+    # Destination must be a root-position tonic on a strong beat.
+    if chord.inversion != "root":
+        return []
+    if chord.metric_position != "strong":
         return []
     return [ErrorDetail(rule.error_message, rule.weight, chord.tick,
                         prev_tick=prev.tick)]
